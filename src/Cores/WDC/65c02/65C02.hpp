@@ -36,7 +36,7 @@ namespace MicroSim::WDC
 		~CoreW65C02S() override;
 		void step() override;
 		void reset() override;
-		static std::unique_ptr<Core> createCore();
+		static std::shared_ptr<Core> createCore();
 		constexpr static CoreDescription s_description{"65C02S", createCore};
 	private:
 		constexpr static Addr vec_brk = 0xFFFE;
@@ -68,6 +68,7 @@ namespace MicroSim::WDC
 		void op_adc(Addr);
 		void op_and(Addr);
 		void op_asl(Addr);
+		void op_asla(Addr);
 		void op_bcc(Addr);
 		void op_bcs(Addr);
 		void op_beq(Addr);
@@ -87,10 +88,12 @@ namespace MicroSim::WDC
 		void op_cpx(Addr);
 		void op_cpy(Addr);
 		void op_dec(Addr);
+		void op_dea(Addr);
 		void op_dex(Addr);
 		void op_dey(Addr);
 		void op_eor(Addr);
 		void op_inc(Addr);
+		void op_ina(Addr);
 		void op_inx(Addr);
 		void op_iny(Addr);
 		void op_jmp(Addr);
@@ -99,6 +102,7 @@ namespace MicroSim::WDC
 		void op_ldx(Addr);
 		void op_ldy(Addr);
 		void op_lsr(Addr);
+		void op_lsra(Addr);
 		void op_nop(Addr);
 		void op_ora(Addr);
 		void op_pha(Addr);
@@ -110,7 +114,9 @@ namespace MicroSim::WDC
 		void op_plx(Addr);
 		void op_ply(Addr);
 		void op_rol(Addr);
+		void op_rola(Addr);
 		void op_ror(Addr);
+		void op_rora(Addr);
 		void op_rti(Addr);
 		void op_rts(Addr);
 		void op_sbc(Addr);

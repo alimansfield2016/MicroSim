@@ -24,24 +24,23 @@ void CoreW65C02S::op_and(CoreW65C02S::Addr op_addr)
 }
 void CoreW65C02S::op_asl(CoreW65C02S::Addr op_addr)
 {
-	if(op_addr) //memory
-	{
-		std::uint8_t v = m_memory.read_byte(op_addr);
-		C = v&0x80;
-		v <<=1;
-		Z = (v==0);
-		N = (A&0x80)>0;
-		m_memory.write_byte(op_addr, v);
-		_cycles += 3;
-	}
-	else //Accumulator
-	{
-		C = A&0x80;
-		A <<=1;
-		Z = (A==0);
-		N = (A&0x80)>0;
-		_cycles++;
-	}
+	 //memory
+	std::uint8_t v = m_memory.read_byte(op_addr);
+	C = v&0x80;
+	v <<=1;
+	Z = (v==0);
+	N = (A&0x80)>0;
+	m_memory.write_byte(op_addr, v);
+	_cycles += 3;
+}
+void CoreW65C02S::op_asla(CoreW65C02S::Addr op_addr)
+{
+	 //Accumulator
+	C = A&0x80;
+	A <<=1;
+	Z = (A==0);
+	N = (A&0x80)>0;
+	_cycles++;
 }
 void CoreW65C02S::op_bcc(CoreW65C02S::Addr op_addr)
 {
@@ -175,22 +174,21 @@ void CoreW65C02S::op_cpy(CoreW65C02S::Addr op_addr)
 }
 void CoreW65C02S::op_dec(CoreW65C02S::Addr op_addr)
 {
-	if(op_addr) //memory
-	{
-		std::uint8_t v = m_memory.read_byte(op_addr);
-		v--;
-		Z = (v==0);
-		N = (A&0x80)>0;
-		m_memory.write_byte(op_addr, v);
-		_cycles += 3;
-	}
-	else //Accumulator
-	{
-		A--;
-		Z = (A==0);
-		N = (A&0x80)>0;
-		_cycles++;
-	}
+	 //memory
+	std::uint8_t v = m_memory.read_byte(op_addr);
+	v--;
+	Z = (v==0);
+	N = (A&0x80)>0;
+	m_memory.write_byte(op_addr, v);
+	_cycles += 3;
+}
+void CoreW65C02S::op_dea(CoreW65C02S::Addr op_addr)
+{
+	 //Accumulator
+	A--;
+	Z = (A==0);
+	N = (A&0x80)>0;
+	_cycles++;
 }
 void CoreW65C02S::op_dex(CoreW65C02S::Addr op_addr)
 {
@@ -216,22 +214,21 @@ void CoreW65C02S::op_eor(CoreW65C02S::Addr op_addr)
 }
 void CoreW65C02S::op_inc(CoreW65C02S::Addr op_addr)
 {
-	if(op_addr) //memory
-	{
-		std::uint8_t v = m_memory.read_byte(op_addr);
-		v++;
-		Z = (v==0);
-		N = (A&0x80)>0;
-		m_memory.write_byte(op_addr, v);
-		_cycles += 3;
-	}
-	else //Accumulator
-	{
-		A++;
-		Z = (A==0);
-		N = (A&0x80)>0;
-		_cycles++;
-	}
+	 //memory
+	std::uint8_t v = m_memory.read_byte(op_addr);
+	v++;
+	Z = (v==0);
+	N = (A&0x80)>0;
+	m_memory.write_byte(op_addr, v);
+	_cycles += 3;
+}
+void CoreW65C02S::op_ina(CoreW65C02S::Addr op_addr)
+{
+	 //Accumulator
+	A++;
+	Z = (A==0);
+	N = (A&0x80)>0;
+	_cycles++;
 }
 void CoreW65C02S::op_inx(CoreW65C02S::Addr op_addr)
 {
@@ -274,24 +271,23 @@ void CoreW65C02S::op_ldy(CoreW65C02S::Addr op_addr)
 }
 void CoreW65C02S::op_lsr(CoreW65C02S::Addr op_addr)
 {
-	if(op_addr) //memory
-	{
-		std::uint8_t v = m_memory.read_byte(op_addr);
-		C = v&0x01;
-		v >>=1;
-		Z = (v==0);
-		N = (A&0x80)>0;
-		m_memory.write_byte(op_addr, v);
-		_cycles += 3;
-	}
-	else //Accumulator
-	{
-		C = A&0x01;
-		A >>=1;
-		Z = (A==0);
-		N = (A&0x80)>0;
-		_cycles++;
-	}
+	 //memory
+	std::uint8_t v = m_memory.read_byte(op_addr);
+	C = v&0x01;
+	v >>=1;
+	Z = (v==0);
+	N = (A&0x80)>0;
+	m_memory.write_byte(op_addr, v);
+	_cycles += 3;
+}
+void CoreW65C02S::op_lsra(CoreW65C02S::Addr op_addr)
+{
+	 //Accumulator
+	C = A&0x01;
+	A >>=1;
+	Z = (A==0);
+	N = (A&0x80)>0;
+	_cycles++;
 }
 void CoreW65C02S::op_nop(CoreW65C02S::Addr op_addr)
 {
@@ -347,59 +343,57 @@ void CoreW65C02S::op_ply(CoreW65C02S::Addr op_addr)
 }
 void CoreW65C02S::op_rol(CoreW65C02S::Addr op_addr)
 {
-	if(op_addr) //memory
-	{
-		std::uint8_t v = m_memory.read_byte(op_addr);
-		
-		bool c = v&0x80;
-		v <<=1;
-		if(C)
-			v |= 0x01;
-		C = c;
-		Z = (v==0);
-		N = (A&0x80)>0;
-		m_memory.write_byte(op_addr, v);
-		_cycles += 3;
-	}
-	else //Accumulator
-	{
-		bool c = A&0x80;
-		A <<=1;
-		if(C)
-			A |= 0x01;
-		C = c;
-		Z = (A==0);
-		N = (A&0x80)>0;
-		_cycles++;
-	}
+	 //memory
+	std::uint8_t v = m_memory.read_byte(op_addr);
+	
+	bool c = v&0x80;
+	v <<=1;
+	if(C)
+		v |= 0x01;
+	C = c;
+	Z = (v==0);
+	N = (A&0x80)>0;
+	m_memory.write_byte(op_addr, v);
+	_cycles += 3;
+}
+void CoreW65C02S::op_rola(CoreW65C02S::Addr op_addr)
+{
+	 //Accumulator
+	bool c = A&0x80;
+	A <<=1;
+	if(C)
+		A |= 0x01;
+	C = c;
+	Z = (A==0);
+	N = (A&0x80)>0;
+	_cycles++;
 }
 void CoreW65C02S::op_ror(CoreW65C02S::Addr op_addr)
 {
-	if(op_addr) //memory
-	{
-		std::uint8_t v = m_memory.read_byte(op_addr);
-		
-		bool c = v&0x01;
-		v >>=1;
-		if(C)
-			v |= 0x80;
-		C = c;
-		Z = (v==0);
-		N = (A&0x80)>0;
-		m_memory.write_byte(op_addr, v);
-		_cycles += 3;
-	}
-	else //Accumulator
-	{
-		bool c = A&0x01;
-		A >>=1;
-		if(C)
-			A |= 0x80;
-		C = c;
-		Z = (A==0);
-		N = (A&0x80)>0;
-		_cycles++;
-	}
+	 //memory
+	std::uint8_t v = m_memory.read_byte(op_addr);
+	
+	bool c = v&0x01;
+	v >>=1;
+	if(C)
+		v |= 0x80;
+	C = c;
+	Z = (v==0);
+	N = (A&0x80)>0;
+	m_memory.write_byte(op_addr, v);
+	_cycles += 3;
+}
+void CoreW65C02S::op_rora(CoreW65C02S::Addr op_addr)
+{
+	 //Accumulator
+	bool c = A&0x01;
+	A >>=1;
+	if(C)
+		A |= 0x80;
+	C = c;
+	Z = (A==0);
+	N = (A&0x80)>0;
+	_cycles++;
 }
 void CoreW65C02S::op_rti(CoreW65C02S::Addr op_addr)
 {

@@ -19,7 +19,7 @@ void CoreW65C02S::step()
 		case 0x07: /*RMB0*/ break;
 		case 0x08: op_php(addrm_imp()); break;
 		case 0x09: op_ora(addrm_immb()); break;
-		case 0x0a: op_asl(addrm_acc()); break;
+		case 0x0a: op_asla(addrm_acc()); break;
 		case 0x0b: break;
 		case 0x0c: /*TSB*/ break;
 		case 0x0d: op_ora(addrm_abs()); break;
@@ -36,7 +36,7 @@ void CoreW65C02S::step()
 		case 0x17: /*RMB1*/ break;
 		case 0x18: op_clc(addrm_imp()); break;
 		case 0x19: op_ora(addrm_absy()); break;
-		case 0x1a: op_inc(addrm_acc()); break;
+		case 0x1a: op_ina(addrm_acc()); break;
 		case 0x1b: break;
 		case 0x1c: /*TRB*/ break;
 		case 0x1d: op_ora(addrm_absx()); break;
@@ -53,7 +53,7 @@ void CoreW65C02S::step()
 		case 0x27: /*RMB*/ break;
 		case 0x28: op_plp(addrm_imp()); break;
 		case 0x29: op_and(addrm_immb()); break;
-		case 0x2a: op_rol(addrm_acc()); break;
+		case 0x2a: op_rola(addrm_acc()); break;
 		case 0x2b: break;
 		case 0x2c: op_bit(addrm_abs()); break;
 		case 0x2d: op_and(addrm_abs()); break;
@@ -70,7 +70,7 @@ void CoreW65C02S::step()
 		case 0x37: /*RMB*/ break;
 		case 0x38: op_sec(addrm_imp()); break;
 		case 0x39: op_and(addrm_absy()); break;
-		case 0x3a: op_dec(addrm_acc()); break;
+		case 0x3a: op_dea(addrm_acc()); break;
 		case 0x3b: break;
 		case 0x3c: op_bit(addrm_absx()); break;
 		case 0x3d: op_and(addrm_absx()); break;
@@ -87,7 +87,7 @@ void CoreW65C02S::step()
 		case 0x47: /*RMB*/ break;
 		case 0x48: op_pha(addrm_imp()); break;
 		case 0x49: op_eor(addrm_immb()); break;
-		case 0x4a: op_lsr(addrm_acc()); break;
+		case 0x4a: op_lsra(addrm_acc()); break;
 		case 0x4b: break;
 		case 0x4c: op_jmp(addrm_abs()); break;
 		case 0x4d: op_eor(addrm_abs()); break;
@@ -121,7 +121,7 @@ void CoreW65C02S::step()
 		case 0x67: /*RMB*/ break;
 		case 0x68: op_pla(addrm_imp()); break;
 		case 0x69: op_adc(addrm_immb()); break;
-		case 0x6a: op_ror(addrm_acc()); break;
+		case 0x6a: op_rora(addrm_acc()); break;
 		case 0x6b: break;
 		case 0x6c: op_jmp(addrm_abs_ind()); break;
 		case 0x6d: op_adc(addrm_abs()); break;
@@ -310,9 +310,9 @@ CoreW65C02S::CoreW65C02S() :
 CoreW65C02S::~CoreW65C02S()
 {}
 
-std::unique_ptr<MicroSim::Core> CoreW65C02S::createCore()
+std::shared_ptr<MicroSim::Core> CoreW65C02S::createCore()
 {
-	return std::make_unique<CoreW65C02S>();
+	return std::make_shared<CoreW65C02S>();
 }
 
 void CoreW65C02S::push_byte(std::uint8_t b)
