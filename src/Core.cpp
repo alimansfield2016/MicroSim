@@ -10,6 +10,11 @@ unsigned short int MicroSim::Core::cooldown() const
 	return m_cooldown;
 }
 
+void MicroSim::Core::set_cooldown(unsigned short int d)
+{
+	m_cooldown = d;
+}
+
 unsigned short int MicroSim::Core::dec_cooldown()
 {
 	if(m_cooldown) --m_cooldown;
@@ -22,7 +27,10 @@ void MicroSim::Core::update_cycles()
 	m_cooldown += _cycles;
 	_cycles = 0;
 }
-MicroSim::Core::Core(const std::initializer_list<std::tuple<std::string, std::size_t, void*>> & _registers) : 
+MicroSim::Core::Core(const std::initializer_list<std::tuple<std::string, std::size_t, void*>> & _registers, unsigned long int _frequency) : 
+	m_frequency{_frequency},
+	m_cycles{0},
+	m_cooldown{0},
 	m_registers{_registers}
 {}
 
@@ -63,7 +71,9 @@ EMSCRIPTEN_BINDINGS(core){
 		.function("memory", &MicroSim::Core::memory)
 		.function("cycles", &MicroSim::Core::cycles)
 		.function("cooldown", &MicroSim::Core::cooldown)
+		.function("set_cooldown", &MicroSim::Core::set_cooldown)
 		.function("dec_cooldown", &MicroSim::Core::dec_cooldown)
+		.smart_ptr<std::shared_ptr<MicroSim::Core>>("Core")
 		;
 }
 

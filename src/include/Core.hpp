@@ -11,10 +11,11 @@ namespace MicroSim
 	struct CoreDescription
 	{
 		const char *name;
-		std::unique_ptr<Core> (*create)();
+		std::shared_ptr<Core> (*create)();
 	};
 	class Core
 	{
+		const unsigned long int m_frequency;
 		unsigned long int m_cycles;
 		unsigned short int m_cooldown;
 
@@ -28,7 +29,7 @@ namespace MicroSim
 		> m_registers;
 
 	protected:
-		Core(const std::initializer_list<std::tuple<std::string, std::size_t, void*>> & _registers);
+		Core(const std::initializer_list<std::tuple<std::string, std::size_t, void*>> & _registers, unsigned long int _frequency);
 		Memory m_memory;
 		unsigned short int _cycles;
 		void update_cycles();
@@ -36,6 +37,7 @@ namespace MicroSim
 	public:
 		unsigned long int cycles() const;
 		unsigned short int cooldown() const;
+		void set_cooldown(unsigned short int);
 		unsigned short int dec_cooldown();
 		Memory &memory() { return m_memory; };
 		std::string registers() const;

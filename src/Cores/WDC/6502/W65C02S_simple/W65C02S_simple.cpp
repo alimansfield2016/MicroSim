@@ -1,12 +1,48 @@
-#include "65C02.hpp"
-#include "65C02_addrm.hpp"
-#include "65C02_op.hpp"
+#include "W65C02S_simple.hpp"
+#include "W65C02S_simple_addrm.hpp"
+#include "W65C02S_simple_op.hpp"
+
 using namespace MicroSim::WDC;
 
-void CoreW65C02S::step()
+void CoreW65C02S_simple::push_word(std::uint16_t w)
+{
+	push_byte(w>>8);
+	push_byte(w&0xFF);
+}
+std::uint16_t CoreW65C02S_simple::pop_word()
+{
+	std::uint16_t w = 0;
+	w = pop_byte();
+	w |= pop_byte()<<8;
+	return w;
+}
+
+std::uint16_t CoreW65C02S_simple::read_word(Addr addr)
+{
+	std::uint16_t out = 0;
+	out |= read_byte(addr);
+	out |= read_byte(addr+1)<<8;
+}
+void CoreW65C02S_simple::write_word(Addr addr, std::uint16_t w)
+{
+	write_byte(addr, w&0xFF);
+	write_byte(addr+1, w>>8);
+}
+
+void CoreW65C02S_simple::reset()
+{
+	Addr _rst_vec = read_word(vec_res);
+	P &= ~0x3C;
+	P |= 0x34;
+	SP = 0xFF;
+	PC = _rst_vec;
+	_cycles += 7;
+}
+
+void CoreW65C02S_simple::step()
 {
 	//get the next instruction
-	std::uint8_t instr = m_memory.read_byte(PC++);
+	std::uint8_t instr = read_byte(PC++);
 	_cycles++;
 	switch(instr){
 		case 0x00: op_brk(addrm_immb()); break;
@@ -284,70 +320,15 @@ void CoreW65C02S::step()
 	update_cycles();
 }
 
-void CoreW65C02S::reset()
-{
-	Addr _rst_vec = m_memory.read_word(vec_res);
-	P &= ~0x3C;
-	P |= 0x34;
-	SP = 0xFF;
-	PC = _rst_vec;
-	_cycles += 7;
-}
-
-CoreW65C02S::CoreW65C02S() : 
-	Core{{
-		{"A", 1, &A},
-		{"X", 1, &X},
-		{"Y", 1, &Y},
-		{"P", 1, &P},
-		{"SP", 1, &SP},
-		{"PC", 2, &PC}
-	}}
-{
-
-}
-
-CoreW65C02S::~CoreW65C02S()
-{}
-
-std::shared_ptr<MicroSim::Core> CoreW65C02S::createCore()
-{
-	return std::make_shared<CoreW65C02S>();
-}
-
-void CoreW65C02S::push_byte(std::uint8_t b)
-{
-	m_memory.write_byte(0x100|SP--, b);
-}
-void CoreW65C02S::push_word(std::uint16_t w)
-{
-	push_byte(w>>8);
-	push_byte(w&0xFF);
-}
-std::uint8_t CoreW65C02S::pop_byte()
-{
-	return m_memory.read_byte(0x100|++SP);
-}
-std::uint16_t CoreW65C02S::pop_word()
-{
-	std::uint16_t w = 0;
-	w = pop_byte();
-	w |= pop_byte()<<8;
-	return w;
-}
 
 #ifdef WASM
-
 #include <emscripten/bind.h>
 
-EMSCRIPTEN_BINDINGS(65C02){
-	emscripten::class_<MicroSim::WDC::CoreW65C02S, emscripten::base<MicroSim::Core>>("CoreW65C02S")
-		.constructor<>()
-		.class_function("createCore", &MicroSim::WDC::CoreW65C02S::createCore)
-		// .function("step", &MicroSim::WDC::CoreW65C02S::step)
-		// .function("reset", &MicroSim::WDC::CoreW65C02S::reset)
-
-		;
+EMSCRIPTEN_BINDINGS(W65C02S_simple){
+	emscripten::class_<
+		MicroSim::WDC::CoreW65C02S_simple, 
+		emscripten::base<MicroSim::WDC::Core6502>>("CoreW65C02S_simple")
+	;
 }
 
 #endif

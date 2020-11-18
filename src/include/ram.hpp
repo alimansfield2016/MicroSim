@@ -4,12 +4,16 @@
 
 namespace MicroSim
 {
-	template<std::size_t N>
 	class Ram : public MicroSim::MemoryDevice
 	{
-		std::uint8_t m_data[N];
+		std::uint8_t *m_data;
 	public:
-		Ram(Addr low) : MemoryDevice{low, low+N, m_data}{}
+		Ram(std::size_t n, Addr low) : 
+			MemoryDevice{low, low+n, nullptr},
+			m_data{new std::uint8_t[n]}
+		{
+			MemoryDevice::m_data = m_data;
+		}
 	};
 } // namespace MicroSim
 

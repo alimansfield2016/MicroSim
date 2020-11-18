@@ -61,6 +61,7 @@ namespace MicroSim
 	{
 		std::vector<
 			std::shared_ptr<MemoryDevice>
+			// MemoryDevice*
 		> m_devices;
 
 		MemoryDevice &device_at(Addr);
@@ -68,13 +69,15 @@ namespace MicroSim
 		//to hold all of the 
 		//memory devices
 	
+	public:
 		[[nodiscard]] std::uint8_t read_byte_const(Addr) const;
 		[[nodiscard]] std::uint16_t read_word_const(Addr) const;
 		[[nodiscard]] std::uint32_t read_dword_const(Addr) const;
 		[[nodiscard]] std::uint64_t read_qword_const(Addr) const;
-	public:
 		Memory(){}
+		// void add_device(MemoryDevice*);
 		void add_device(std::shared_ptr<MemoryDevice>&&);
+		// void remove_device(MemoryDevice*);
 		void remove_device(std::shared_ptr<MemoryDevice>&&);
 
 		std::uint8_t read_byte(Addr);

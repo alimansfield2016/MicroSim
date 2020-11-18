@@ -5,11 +5,16 @@
 namespace MicroSim
 {
 
-	class _Rom : public MemoryDevice
+	class Rom : public MemoryDevice
 	{
-	protected:
-		_Rom(Addr low, Addr high, uint8_t *m_data) : MemoryDevice{low, high, m_data}{}
+		std::uint8_t *m_data;
 	public:
+		Rom(std::size_t n, Addr low) : 
+			MemoryDevice{low, low+n, nullptr},
+			m_data{new std::uint8_t[n]}
+		{
+			MemoryDevice::m_data = m_data;
+		}
 
 		void fill(std::uint8_t *data, std::size_t size, Addr offset)
 		{
@@ -31,15 +36,15 @@ namespace MicroSim
 		void override_write_qword(Addr addr, std::uint64_t d) { *reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;  };
 	};
 
-	template<std::size_t N>
-	class Rom : public _Rom
-	{
-		friend class _Rom;
-		std::uint8_t m_data[N];
-	public:
-		Rom(Addr low) : _Rom{low, low+N, m_data}{}
+	// template<std::size_t N>
+	// class Rom : public _Rom
+	// {
+	// 	friend class _Rom;
+	// 	std::uint8_t m_data[N];
+	// public:
+	// 	Rom(Addr low) : _Rom{low, low+N, m_data}{}
 
-	};
+	// };
 
 
 } // namespace MicroSim

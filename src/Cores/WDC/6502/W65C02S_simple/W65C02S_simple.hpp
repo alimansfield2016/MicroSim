@@ -1,52 +1,22 @@
 #pragma once
 
-#include "include/Core.hpp"
+#include "../6502.hpp"
 
 namespace MicroSim::WDC
 {
-	class CoreW65C02S : public MicroSim::Core
+	class CoreW65C02S_simple : public Core6502
 	{
-		using Addr = std::uint16_t;
-		std::uint8_t A;
-		std::uint8_t X;
-		std::uint8_t Y;
-		std::uint8_t SP;
-		union{
-			std::uint8_t P;
-			struct{
-				std::uint8_t C:1;
-				std::uint8_t Z:1;
-				std::uint8_t I:1;
-				std::uint8_t D:1;
-				std::uint8_t B:1;
-				std::uint8_t U:1;
-				std::uint8_t V:1;
-				std::uint8_t N:1;
-			};
-		};
-		union{
-			Addr PC;
-			struct{
-				std::uint8_t PCL;
-				std::uint8_t PCH;
-			};
-		};
 	public:
-		CoreW65C02S();
-		~CoreW65C02S() override;
-		void step() override;
 		void reset() override;
-		static std::shared_ptr<Core> createCore();
-		constexpr static CoreDescription s_description{"65C02S", createCore};
-	private:
-		constexpr static Addr vec_brk = 0xFFFE;
-		constexpr static Addr vec_irq = 0xFFFE;
-		constexpr static Addr vec_res = 0xFFFC;
-		constexpr static Addr vec_nmi = 0xFFFA;
-		void push_byte(std::uint8_t);
+		void step() override;
+
+	protected:
 		void push_word(std::uint16_t);
-		std::uint8_t pop_byte();
 		std::uint16_t pop_word();
+		std::uint16_t read_word(Addr);
+		void write_word(Addr, std::uint16_t);
+
+	private:
 
 		Addr addrm_abs();
 		Addr addrm_absx_ind();

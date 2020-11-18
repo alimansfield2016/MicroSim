@@ -2,7 +2,10 @@
 
 #include <algorithm>
 
+#include <iostream>
+#include <iomanip>
 
+#define DEBUG
 
 
 std::uint8_t MicroSim::MemoryDevice::read_byte(Addr addr)
@@ -82,19 +85,23 @@ MicroSim::MemoryDevice &MicroSim::Memory::device_at(Addr _addr)
 }
 
 void MicroSim::Memory::add_device(std::shared_ptr<MemoryDevice> &&dev)
+// void MicroSim::Memory::add_device(MemoryDevice *dev)
 {
 	auto priority = dev->priority();
 	for(auto it = m_devices.begin(); it != m_devices.end(); it++)
 	{
 		if(priority > (*it)->priority()){
+			// m_devices.insert(it, dev);
 			m_devices.insert(it, std::move(dev));
 			break;
 		}
 	}
 	m_devices.push_back(std::move(dev));
+	// m_devices.push_back(dev);
 
 }
 void MicroSim::Memory::remove_device(std::shared_ptr<MemoryDevice> &&dev)
+// void MicroSim::Memory::remove_device(MemoryDevice *dev)
 {
 	std::remove_if(m_devices.begin(), m_devices.end(), [&](auto &e){return e == dev; });
 }
@@ -118,23 +125,53 @@ std::uint64_t MicroSim::Memory::read_qword_const(Addr addr) const
 
 std::uint8_t MicroSim::Memory::read_byte(Addr addr)
 {
-	return device_at(addr).read_byte(addr);
+	std::uint8_t v = device_at(addr).read_byte(addr);
+	#ifdef DEBUG
+	std::cout 	<< "Read Byte " 
+				<< std::showbase 
+				<< std::internal 
+				<< std::setfill('0')
+				<< std::hex
+				<< std::setw(4)
+				<< addr
+				<< ":"
+				<< std::setw(2)
+				<< (v&0xFF)
+				<< '\n';
+	#endif
+	return v;
 }
 std::uint16_t MicroSim::Memory::read_word(Addr addr)
 {
-	return device_at(addr).read_word(addr);
+	auto v = device_at(addr).read_word(addr);
+	return v;
 }
 std::uint32_t MicroSim::Memory::read_dword(Addr addr)
 {
-	return device_at(addr).read_dword(addr);
+	auto v = device_at(addr).read_dword(addr);
+	return v;
 }
 std::uint64_t MicroSim::Memory::read_qword(Addr addr)
 {
-	return device_at(addr).read_qword(addr);
+	auto v = device_at(addr).read_qword(addr);
+	return v;
 }
 
 void MicroSim::Memory::write_byte(Addr addr, std::uint8_t d)
 {
+	#ifdef DEBUG
+	std::cout 	<< "Write Byte " 
+				<< std::showbase 
+				<< std::internal 
+				<< std::setfill('0')
+				<< std::hex
+				<< std::setw(4)
+				<< addr
+				<< ":"
+				<< std::setw(2)
+				<< (d&0xFF)
+				<< '\n';
+	#endif
 	device_at(addr).write_byte(addr, d);
 }
 void MicroSim::Memory::write_word(Addr addr, std::uint16_t d)
@@ -155,7 +192,22 @@ void MicroSim::Memory::write_qword(Addr addr, std::uint64_t d)
 
 EMSCRIPTEN_BINDINGS(Memory){
 	emscripten::class_<MicroSim::Memory>("Memory")
-		.constructor<>()
+		// .constructor<>()
+		.smart_ptr_constructor("Simulation", &std::make_unique<MicroSim::Memory>)
+		.function("read_byte", &MicroSim::Memory::read_byte)
+		.function("read_word", &MicroSim::Memory::read_word)
+		.function("read_dword", &MicroSim::Memory::read_dword)
+		.function("read_qword", &MicroSim::Memory::read_qword)
+		.function("read_byte_const", &MicroSim::Memory::read_byte_const)
+		.function("read_word_const", &MicroSim::Memory::read_word_const)
+		.function("read_dword_const", &MicroSim::Memory::read_dword_const)
+		.function("read_qword_const", &MicroSim::Memory::read_qword_const)
+		.function("write_byte", &MicroSim::Memory::write_byte)
+		.function("write_word", &MicroSim::Memory::write_word)
+		.function("write_dword", &MicroSim::Memory::write_dword)
+		.function("write_qword", &MicroSim::Memory::write_qword)
+		.function("add_device", &MicroSim::Memory::add_device, emscripten::allow_raw_pointers())
+		.function("remove_device", &MicroSim::Memory::remove_device, emscripten::allow_raw_pointers())
 		;
 	emscripten::class_<MicroSim::MemoryDevice>("MemoryDevice")
 		.constructor<MicroSim::Addr, MicroSim::Addr, std::uint8_t*>()
@@ -176,50 +228,17 @@ EMSCRIPTEN_BINDINGS(Memory){
 		.constructor<MicroSim::Addr, MicroSim::Addr>()
 		;
 
-	emscripten::class_<MicroSim::_Rom, emscripten::base<MicroSim::MemoryDevice>>("Rom")
-		.function("fill", &MicroSim::_Rom::fill, emscripten::allow_raw_pointers())
-		.function("override_write_byte", &MicroSim::_Rom::override_write_byte)
-		.function("override_write_word", &MicroSim::_Rom::override_write_word)
-		.function("override_write_dword", &MicroSim::_Rom::override_write_dword)
-		.function("override_write_qword", &MicroSim::_Rom::override_write_qword)
-		;
-	emscripten::class_<MicroSim::Rom<0x10000>, emscripten::base<MicroSim::_Rom>>("Rom64K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Rom<0x8000>, emscripten::base<MicroSim::_Rom>>("Rom32K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Rom<0x6000>, emscripten::base<MicroSim::_Rom>>("Rom24K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Rom<0x4000>, emscripten::base<MicroSim::_Rom>>("Rom16K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Rom<0x2000>, emscripten::base<MicroSim::_Rom>>("Rom8K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Rom<0x1000>, emscripten::base<MicroSim::_Rom>>("Rom4K")
-		.constructor<MicroSim::Addr>()
+	emscripten::class_<MicroSim::Rom, emscripten::base<MicroSim::MemoryDevice>>("Rom")
+		.constructor<std::size_t, MicroSim::Addr>()
+		.function("fill", &MicroSim::Rom::fill, emscripten::allow_raw_pointers())
+		.function("override_write_byte", &MicroSim::Rom::override_write_byte)
+		.function("override_write_word", &MicroSim::Rom::override_write_word)
+		.function("override_write_dword", &MicroSim::Rom::override_write_dword)
+		.function("override_write_qword", &MicroSim::Rom::override_write_qword)
 		;
 
-
-	emscripten::class_<MicroSim::Ram<0x10000>, emscripten::base<MicroSim::MemoryDevice>>("Ram64K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Ram<0x8000>, emscripten::base<MicroSim::MemoryDevice>>("Ram32K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Ram<0x6000>, emscripten::base<MicroSim::MemoryDevice>>("Ram24K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Ram<0x4000>, emscripten::base<MicroSim::MemoryDevice>>("Ram16K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Ram<0x2000>, emscripten::base<MicroSim::MemoryDevice>>("Ram8K")
-		.constructor<MicroSim::Addr>()
-		;
-	emscripten::class_<MicroSim::Ram<0x1000>, emscripten::base<MicroSim::MemoryDevice>>("Ram4K")
-		.constructor<MicroSim::Addr>()
+	emscripten::class_<MicroSim::Ram, emscripten::base<MicroSim::MemoryDevice>>("Ram")
+		.constructor<std::size_t, MicroSim::Addr>()
 		;
 }
 
