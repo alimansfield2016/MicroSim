@@ -1,6 +1,7 @@
 #pragma once
 
 #include "include/Core.hpp"
+#include "include/MicroSim.hpp"
 
 namespace MicroSim::WDC
 {
@@ -8,11 +9,11 @@ namespace MicroSim::WDC
 	{
 		using MicroSim::Core::m_memory;
 	protected:
-		using Addr = std::uint16_t;
-		std::uint8_t A;
-		std::uint8_t X;
-		std::uint8_t Y;
-		std::uint8_t SP;
+		using Addr = Word;
+		Byte A;
+		Byte X;
+		Byte Y;
+		Byte SP;
 		union{
 			std::uint8_t P;
 			struct{
@@ -26,18 +27,12 @@ namespace MicroSim::WDC
 				std::uint8_t N:1;
 			};
 		};
-		union{
-			Addr PC;
-			struct{
-				std::uint8_t PCL;
-				std::uint8_t PCH;
-			};
-		};
+		Word PC;
 		
 		Core6502();
 	public:
 		// ~Core6502() override;
-		virtual void step() override = 0;
+		virtual void clock() override = 0;
 		virtual void reset() override = 0;
 		// static std::shared_ptr<Core> createCore();
 		// constexpr static CoreDescription s_description{"65C02S", createCore};
@@ -46,12 +41,10 @@ namespace MicroSim::WDC
 		constexpr static Addr vec_irq = 0xFFFE;
 		constexpr static Addr vec_res = 0xFFFC;
 		constexpr static Addr vec_nmi = 0xFFFA;
-		std::uint8_t read_byte(Addr);
-		void write_byte(Addr, std::uint8_t);
-		void push_byte(std::uint8_t);
-		// void push_word(std::uint16_t);
-		std::uint8_t pop_byte();
-		// std::uint16_t pop_word();
+		MicroSim::Byte read_byte(Addr);
+		void write_byte(Addr, MicroSim::Byte);
+		void push_byte(MicroSim::Byte);
+		MicroSim::Byte pop_byte();
 
 	};
 } // namespace MicroSim::WDC

@@ -25,15 +25,15 @@ namespace MicroSim
 			}
 		}
 
-		void write_byte(Addr, std::uint8_t) override {};
-		void write_word(Addr, std::uint16_t) override {};
-		void write_dword(Addr, std::uint32_t) override {};
-		void write_qword(Addr, std::uint64_t) override {};
+		void write_byte(Addr, MicroSim::Byte) override {};
+		void write_word(Addr, MicroSim::Word) override {};
+		void write_dword(Addr, MicroSim::DWord) override {};
+		void write_qword(Addr, MicroSim::QWord) override {};
 
-		void override_write_byte(Addr addr, std::uint8_t d) { *reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]) = d; };
-		void override_write_word(Addr addr, std::uint16_t d) { *reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]) = d;  };
-		void override_write_dword(Addr addr, std::uint32_t d) { *reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]) = d;  };
-		void override_write_qword(Addr addr, std::uint64_t d) { *reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;  };
+		void override_write_byte(Addr addr, MicroSim::Byte d) { *reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]) = d; };
+		void override_write_word(Addr addr, MicroSim::Word d) { *reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]) = d;  };
+		void override_write_dword(Addr addr, MicroSim::DWord d) { *reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]) = d;  };
+		void override_write_qword(Addr addr, MicroSim::QWord d) { *reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;  };
 	};
 
 	// template<std::size_t N>

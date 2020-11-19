@@ -73,19 +73,19 @@ CoreW65C02S_simple::Addr CoreW65C02S_simple::addrm_zp()
 }
 CoreW65C02S_simple::Addr CoreW65C02S_simple::addrm_zpx_ind()
 {
-	Addr addr = static_cast<std::uint8_t>(read_byte(PC++)+X);
+	Addr addr = static_cast<MicroSim::Byte>(read_byte(PC++)+X);
 	_cycles += 4;
 	return read_word(addr);
 }
 CoreW65C02S_simple::Addr CoreW65C02S_simple::addrm_zpx()
 {
-	Addr addr = static_cast<std::uint8_t>(read_byte(PC++)+X);
+	Addr addr = static_cast<MicroSim::Byte>(read_byte(PC++)+X);
 	_cycles += 2;
 	return addr;
 }
 CoreW65C02S_simple::Addr CoreW65C02S_simple::addrm_zpy()
 {
-	Addr addr = static_cast<std::uint8_t>(read_byte(PC++)+Y);
+	Addr addr = static_cast<MicroSim::Byte>(read_byte(PC++)+Y);
 	_cycles += 2;
 	return addr;
 }

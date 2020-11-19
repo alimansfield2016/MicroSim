@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Device.hpp"
 #include "Memory.hpp"
 #include <memory>
 #include <vector>
@@ -13,11 +14,9 @@ namespace MicroSim
 		const char *name;
 		std::shared_ptr<Core> (*create)();
 	};
-	class Core
+	class Core : public Device
 	{
 		const unsigned long int m_frequency;
-		unsigned long int m_cycles;
-		unsigned short int m_cooldown;
 
 		// registers (for GDB)
 		const std::vector<
@@ -31,20 +30,17 @@ namespace MicroSim
 	protected:
 		Core(const std::initializer_list<std::tuple<std::string, std::size_t, void*>> & _registers, unsigned long int _frequency);
 		Memory m_memory;
-		unsigned short int _cycles;
-		void update_cycles();
+		unsigned long int m_cycles;
+		void clock_mem();
 
 	public:
 		unsigned long int cycles() const;
-		unsigned short int cooldown() const;
-		void set_cooldown(unsigned short int);
-		unsigned short int dec_cooldown();
 		Memory &memory() { return m_memory; };
 		std::string registers() const;
 
 	public:
 		virtual ~Core();
-		virtual void step() = 0;
-		virtual void reset() = 0;
+		virtual void clock() override = 0;
+		virtual void reset() override = 0;
 	};
 } // namespace MicroSim

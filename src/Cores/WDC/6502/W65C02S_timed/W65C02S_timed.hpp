@@ -7,7 +7,7 @@ namespace MicroSim::WDC
 	class CoreW65C02S_timed : public Core6502
 	{
 	public:
-		void step() override;
+		void clock() override;
 		void reset() override;
 	private:
 		void decode(std::uint8_t);
@@ -16,14 +16,8 @@ namespace MicroSim::WDC
 			ADDR,
 			EXEC,
 		}state;
-		std::uint8_t TMP;
-		union{
-			Addr _addr;
-			struct{
-				std::uint8_t _addr_l;
-				std::uint8_t _addr_h;
-			};
-		};
+		MicroSim::Byte TMP;
+		MicroSim::Word _addr;
 		void (CoreW65C02S_timed::*addrm)();
 		void (CoreW65C02S_timed::*op)();
 

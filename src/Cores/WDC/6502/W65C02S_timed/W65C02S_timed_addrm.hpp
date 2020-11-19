@@ -5,52 +5,52 @@ using namespace MicroSim::WDC;
 
 void CoreW65C02S_timed::addrm_abs()
 {
-	_addr_l = read_byte(PC++);
+	_addr.low() = read_byte(PC++);
 	addrm = &CoreW65C02S_timed::addrm_abs2;
 }
 void CoreW65C02S_timed::addrm_abs2()
 {
-	_addr_h = read_byte(PC++);
+	_addr.high() = read_byte(PC++);
 	state = State::EXEC;
 }
 
 void CoreW65C02S_timed::addrm_absx()
 {
-	_addr_l = read_byte(PC++);
+	_addr.low() = read_byte(PC++);
 	addrm = &CoreW65C02S_timed::addrm_absx2;
 }
 void CoreW65C02S_timed::addrm_absx2()
 {
-	_addr_h = read_byte(PC++);
+	_addr.high() = read_byte(PC++);
 	_addr += X;
 	state = State::EXEC;
 }
 
 void CoreW65C02S_timed::addrm_absx_rmw()
 {
-	_addr_l = read_byte(PC++);
+	_addr.low() = read_byte(PC++);
 	addrm = &CoreW65C02S_timed::addrm_absx2_rmw;
 }
 void CoreW65C02S_timed::addrm_absx2_rmw()
 {
-	_addr_h = read_byte(PC++);
+	_addr.high() = read_byte(PC++);
 	addrm = &CoreW65C02S_timed::addrm_abs_x3_rmw;
 }
 void CoreW65C02S_timed::addrm_abs_x3_rmw()
 {
-	read_byte(_addr_h<<8 | (_addr_l+X));
+	read_byte(_addr.high()<<8 | (_addr.low()+X));
 	_addr += X;
 	state = State::EXEC;
 }
 
 void CoreW65C02S_timed::addrm_absy()
 {
-	_addr_l = read_byte(PC++);
+	_addr.low() = read_byte(PC++);
 	addrm = &CoreW65C02S_timed::addrm_absy2;
 }
 void CoreW65C02S_timed::addrm_absy2()
 {
-	_addr_h = read_byte(PC++);
+	_addr.high() = read_byte(PC++);
 	_addr += Y;
 	state = State::EXEC;
 }
@@ -97,18 +97,18 @@ void CoreW65C02S_timed::addrm_zpi()
 void CoreW65C02S_timed::addrm_zpxi()
 {
 	_addr = read_byte(PC++);
-	_addr_l += X;
+	_addr.low() += X;
 	addrm = &CoreW65C02S_timed::addrm_zpi2;
 }
 void CoreW65C02S_timed::addrm_zpi2()
 {
-	_addr_h = read_byte(_addr_l);
+	_addr.high() = read_byte(_addr.low());
 	addrm = &CoreW65C02S_timed::addrm_zpi3;
 }
 void CoreW65C02S_timed::addrm_zpi3()
 {
-	_addr_l = read_byte(_addr_l+1);
-	std::swap(_addr_l, _addr_h);
+	_addr.low() = read_byte(_addr.low()+1);
+	std::swap(_addr.low(), _addr.high());
 	state = State::EXEC;
 }
 
@@ -119,35 +119,35 @@ void CoreW65C02S_timed::addrm_zpiy()
 }
 void CoreW65C02S_timed::addrm_zpiy2()
 {
-	_addr_h = read_byte(_addr_l);
+	_addr.high() = read_byte(_addr.low());
 	addrm = &CoreW65C02S_timed::addrm_zpiy3;
 }
 void CoreW65C02S_timed::addrm_zpiy3()
 {
-	_addr_l = read_byte(_addr_l+1);
-	std::swap(_addr_l, _addr_h);
-	_addr_l += Y;
-	if(_addr_l >= Y)
+	_addr.low() = read_byte(_addr.low()+1);
+	std::swap(_addr.low(), _addr.high());
+	_addr.low() += Y;
+	if(_addr.low() >= Y)
 		state = State::EXEC;
 	addrm = &CoreW65C02S_timed::addrm_zpiy4;
 }
 void CoreW65C02S_timed::addrm_zpiy4()
 {
 	read_byte(_addr);
-	_addr_h++;
+	_addr.high()++;
 	state = State::EXEC;
 }
 
 void CoreW65C02S_timed::addrm_zpx()
 {
 	_addr = read_byte(PC++);
-	_addr_l += X;
+	_addr.low() += X;
 	state = State::EXEC;
 }
 void CoreW65C02S_timed::addrm_zpy()
 {
 	_addr = read_byte(PC++);
-	_addr_l += Y;
+	_addr.low() += Y;
 	state = State::EXEC;
 }
 

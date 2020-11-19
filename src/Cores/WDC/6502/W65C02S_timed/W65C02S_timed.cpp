@@ -4,7 +4,7 @@
 
 using namespace MicroSim::WDC;
 
-void CoreW65C02S_timed::step()
+void CoreW65C02S_timed::clock()
 {
 	switch(state){
 		case State::FETCH:
@@ -18,8 +18,8 @@ void CoreW65C02S_timed::step()
 			(this->*op)();
 			break;
 	}
-	_cycles++;
-	update_cycles();
+	m_cycles++;
+	clock_mem();
 }
 
 void CoreW65C02S_timed::reset()

@@ -5,38 +5,21 @@ unsigned long int MicroSim::Core::cycles() const
 	return m_cycles;
 }
 
-unsigned short int MicroSim::Core::cooldown() const
-{
-	return m_cooldown;
-}
-
-void MicroSim::Core::set_cooldown(unsigned short int d)
-{
-	m_cooldown = d;
-}
-
-unsigned short int MicroSim::Core::dec_cooldown()
-{
-	if(m_cooldown) --m_cooldown;
-	return m_cooldown;
-}
-
-void MicroSim::Core::update_cycles()
-{
-	m_cycles += _cycles;
-	m_cooldown += _cycles;
-	_cycles = 0;
-}
 MicroSim::Core::Core(const std::initializer_list<std::tuple<std::string, std::size_t, void*>> & _registers, unsigned long int _frequency) : 
 	m_frequency{_frequency},
 	m_cycles{0},
-	m_cooldown{0},
+	// m_cooldown{0},
 	m_registers{_registers}
 {}
 
 MicroSim::Core::~Core()
 {
 
+}
+
+void MicroSim::Core::clock_mem()
+{
+	m_memory.clock();
 }
 
 #include <sstream>
@@ -64,15 +47,10 @@ std::string MicroSim::Core::registers() const
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(core){
-	emscripten::class_<MicroSim::Core>("Core")
+	emscripten::class_<MicroSim::Core, emscripten::base<MicroSim::Device> >("Core")
 		.function("registers", &MicroSim::Core::registers)
-		.function("step", &MicroSim::Core::step)
-		.function("reset", &MicroSim::Core::reset)
 		.function("memory", &MicroSim::Core::memory)
 		.function("cycles", &MicroSim::Core::cycles)
-		.function("cooldown", &MicroSim::Core::cooldown)
-		.function("set_cooldown", &MicroSim::Core::set_cooldown)
-		.function("dec_cooldown", &MicroSim::Core::dec_cooldown)
 		.smart_ptr<std::shared_ptr<MicroSim::Core>>("Core")
 		;
 }

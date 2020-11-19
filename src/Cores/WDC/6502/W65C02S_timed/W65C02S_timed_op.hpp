@@ -6,7 +6,7 @@ using namespace MicroSim::WDC;
 void CoreW65C02S_timed::op_adc()
 {
 	TMP = read_byte(_addr);
-	std::uint8_t t = A;
+	MicroSim::Byte t = A;
 	// Decimal mode not yet supported
 	// if(D){
 	// 	uint8_t res1 = TMP&0x0F + A&0x0F + C;
@@ -14,8 +14,8 @@ void CoreW65C02S_timed::op_adc()
 	// 	op = &CoreW65C02S_timed::op_adc1;
 	// }else
 	{
-		std::uint16_t res = TMP + A + C;
-		A = static_cast<std::uint8_t>(res);
+		MicroSim::Word res = TMP + A + C;
+		A = static_cast<MicroSim::Byte>(res);
 		C = (res&0x100)>0;
 		N = (A&0x80)>0;
 		Z = (A == 0);
@@ -40,7 +40,7 @@ void CoreW65C02S_timed::op_and()
 
 void CoreW65C02S_timed::op_asla()
 {
-	std::uint8_t &R = A;
+	MicroSim::Byte &R = A;
 	C = R&0x80;
 	R <<=1;
 	Z = (R==0);
@@ -122,8 +122,8 @@ void CoreW65C02S_timed::op_bra()
 void CoreW65C02S_timed::op_br()
 {
 	read_byte(PC);
-	std::uint16_t pcl = PCL + _addr;
-	PCL = pcl;
+	MicroSim::Word pcl = PC.low() + _addr;
+	PC.low() = pcl;
 	if(!(!!(pcl&0x100) ^ !!(_addr&0x80)))
 		state = State::FETCH;
 	op = &CoreW65C02S_timed::op_br2;
@@ -131,7 +131,7 @@ void CoreW65C02S_timed::op_br()
 void CoreW65C02S_timed::op_br2()
 {
 	read_byte(PC);
-	PCH++;
+	PC.high()++;
 }
 /*
 
@@ -156,12 +156,12 @@ void CoreW65C02S_timed::op_brk()
 }
 void CoreW65C02S_timed::op_brk2()
 {
-	push_byte(PCH);
+	push_byte(PC.high());
 	op = &CoreW65C02S_timed::op_brk3;
 }
 void CoreW65C02S_timed::op_brk3()
 {
-	push_byte(PCL);
+	push_byte(PC.low());
 	op = &CoreW65C02S_timed::op_brk4;
 }
 void CoreW65C02S_timed::op_brk4()
@@ -188,7 +188,7 @@ void CoreW65C02S_timed::op_sef()
 void CoreW65C02S_timed::op_cmp()
 {
 	TMP = read_byte(_addr);
-	std::uint16_t res = A + ~TMP + 1;
+	MicroSim::Word res = A + ~TMP + 1;
 	N = res&0x80;
 	Z = res==0;
 	C = res&0x100;
@@ -197,7 +197,7 @@ void CoreW65C02S_timed::op_cmp()
 void CoreW65C02S_timed::op_cpx()
 {
 	TMP = read_byte(_addr);
-	std::uint16_t res = X + ~TMP + 1;
+	MicroSim::Word res = X + ~TMP + 1;
 	N = res&0x80;
 	Z = res==0;
 	C = res&0x100;
@@ -206,7 +206,7 @@ void CoreW65C02S_timed::op_cpx()
 void CoreW65C02S_timed::op_cpy()
 {
 	TMP = read_byte(_addr);
-	std::uint16_t res = Y + ~TMP + 1;
+	MicroSim::Word res = Y + ~TMP + 1;
 	N = res&0x80;
 	Z = res==0;
 	C = res&0x100;
@@ -294,12 +294,12 @@ void CoreW65C02S_timed::op_iny()
 
 void CoreW65C02S_timed::op_jmp()
 {
-	PCL = read_byte(_addr);
+	PC.low() = read_byte(_addr);
 	op = &CoreW65C02S_timed::op_jmp2;
 }
 void CoreW65C02S_timed::op_jmp2()
 {
-	PCH = read_byte(_addr+1);
+	PC.high() = read_byte(_addr+1);
 	state = State::FETCH;
 }
 
@@ -315,24 +315,24 @@ void CoreW65C02S_timed::op_jsr2()
 }
 void CoreW65C02S_timed::op_jsr3()
 {
-	push_byte(PCH);
+	push_byte(PC.high());
 	op = &CoreW65C02S_timed::op_jsr4;
 }
 void CoreW65C02S_timed::op_jsr4()
 {
-	push_byte(PCL);
+	push_byte(PC.low());
 	op = &CoreW65C02S_timed::op_jsr5;
 }
 void CoreW65C02S_timed::op_jsr5()
 {
-	PCH = read_byte(_addr++);
-	PCL = TMP;
+	PC.high() = read_byte(_addr++);
+	PC.low() = TMP;
 	state = State::FETCH;
 }
 
 void CoreW65C02S_timed::op_lda()
 {
-	std::uint8_t &R = A;
+	MicroSim::Byte &R = A;
 	R = read_byte(_addr);
 	Z = !R;
 	N = R&0x80;
@@ -340,7 +340,7 @@ void CoreW65C02S_timed::op_lda()
 }
 void CoreW65C02S_timed::op_ldx()
 {
-	std::uint8_t &R = X;
+	MicroSim::Byte &R = X;
 	R = read_byte(_addr);
 	Z = !R;
 	N = R&0x80;
@@ -348,7 +348,7 @@ void CoreW65C02S_timed::op_ldx()
 }
 void CoreW65C02S_timed::op_ldy()
 {
-	std::uint8_t &R = Y;
+	MicroSim::Byte &R = Y;
 	R = read_byte(_addr);
 	Z = !R;
 	N = R&0x80;
@@ -357,7 +357,7 @@ void CoreW65C02S_timed::op_ldy()
 
 void CoreW65C02S_timed::op_lsra()
 {
-	std::uint8_t &R = A;
+	MicroSim::Byte &R = A;
 	C = R&0x01;
 	R >>=1;
 	Z = (R==0);
@@ -372,7 +372,7 @@ void CoreW65C02S_timed::op_lsr()
 void CoreW65C02S_timed::op_lsr2()
 {
 	read_byte(_addr);
-	std::uint8_t &R = TMP;
+	MicroSim::Byte &R = TMP;
 	C = R&0x01;
 	R >>=1;
 	Z = (R==0);
@@ -462,7 +462,7 @@ void CoreW65C02S_timed::op_rmw_w()
 
 void CoreW65C02S_timed::op_rola()
 {
-	std::uint8_t &R = A;
+	MicroSim::Byte &R = A;
 	bool c = R&0x80;
 	R <<=1;
 	if(C)
@@ -479,7 +479,7 @@ void CoreW65C02S_timed::op_rol()
 }
 void CoreW65C02S_timed::op_rol_m()
 {
-	std::uint8_t &R = TMP;
+	MicroSim::Byte &R = TMP;
 	bool c = R&0x80;
 	R <<=1;
 	if(C)
@@ -493,7 +493,7 @@ void CoreW65C02S_timed::op_rol_m()
 
 void CoreW65C02S_timed::op_rora()
 {
-	std::uint8_t &R = A;
+	MicroSim::Byte &R = A;
 	bool c = R&0x01;
 	R >>=1;
 	if(C)
@@ -510,7 +510,7 @@ void CoreW65C02S_timed::op_ror()
 }
 void CoreW65C02S_timed::op_ror_m()
 {
-	std::uint8_t &R = TMP;
+	MicroSim::Byte &R = TMP;
 	bool c = R&0x01;
 	R >>=1;
 	if(C)
@@ -529,12 +529,12 @@ void CoreW65C02S_timed::op_rti()
 }
 void CoreW65C02S_timed::op_rts()
 {
-	_addr_l = pop_byte();
+	_addr.low() = pop_byte();
 	op = &CoreW65C02S_timed::op_rts2;
 }
 void CoreW65C02S_timed::op_rts2()
 {
-	_addr_h = pop_byte();
+	_addr.high() = pop_byte();
 	op = &CoreW65C02S_timed::op_rts3;
 }
 void CoreW65C02S_timed::op_rts3()
@@ -547,9 +547,9 @@ void CoreW65C02S_timed::op_rts3()
 void CoreW65C02S_timed::op_sbc()
 {
 	TMP = read_byte(_addr);
-	std::uint8_t t = A;
-	std::uint16_t res = A + TMP + C;
-	A = static_cast<std::uint8_t>(res);
+	MicroSim::Byte t = A;
+	MicroSim::Word res = A + TMP + C;
+	A = static_cast<MicroSim::Byte>(res);
 	C = (res&0x100)>0;
 	N = (A&0x80)>0;
 	Z = (A == 0);
@@ -564,19 +564,19 @@ void CoreW65C02S_timed::op_sbc2()
 
 void CoreW65C02S_timed::op_sta()
 {
-	std::uint8_t &R = A;
+	MicroSim::Byte &R = A;
 	write_byte(_addr, R);
 	state = State::FETCH;
 }
 void CoreW65C02S_timed::op_stx()
 {
-	std::uint8_t &R = X;
+	MicroSim::Byte &R = X;
 	write_byte(_addr, R);
 	state = State::FETCH;
 }
 void CoreW65C02S_timed::op_sty()
 {
-	std::uint8_t &R = Y;
+	MicroSim::Byte &R = Y;
 	write_byte(_addr, R);
 	state = State::FETCH;
 }
@@ -653,12 +653,12 @@ void CoreW65C02S_timed::op_tsb_m()
 
 void CoreW65C02S_timed::op_vecl()
 {
-	PCL = read_byte(_addr);
+	PC.low() = read_byte(_addr);
 	op = &CoreW65C02S_timed::op_vech;
 }
 void CoreW65C02S_timed::op_vech()
 {
-	PCH = read_byte(_addr+1);
+	PC.high() = read_byte(_addr+1);
 	state = State::FETCH;
 }
 

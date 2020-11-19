@@ -5,70 +5,74 @@
 #include <iostream>
 #include <iomanip>
 
-#define DEBUG
+// #define DEBUG
+#ifdef WASM
+#define DEBUG_STREAM std::cout
+#else
+#define DEBUG_STREAM std::clog
+#endif
 
-
-std::uint8_t MicroSim::MemoryDevice::read_byte(Addr addr)
+MicroSim::Byte MicroSim::MemoryDevice::read_byte(Addr addr)
 {
 	return *reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]);
 }
-std::uint16_t MicroSim::MemoryDevice::read_word(Addr addr)
+MicroSim::Word MicroSim::MemoryDevice::read_word(Addr addr)
 {
 	return *reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]);
 }
-std::uint32_t MicroSim::MemoryDevice::read_dword(Addr addr)
+MicroSim::DWord MicroSim::MemoryDevice::read_dword(Addr addr)
 {
 	return *reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]);
 }
-std::uint64_t MicroSim::MemoryDevice::read_qword(Addr addr)
+MicroSim::QWord MicroSim::MemoryDevice::read_qword(Addr addr)
 {
 	return *reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]);
 }
 
-void MicroSim::MemoryDevice::write_byte(Addr addr, std::uint8_t d)
+void MicroSim::MemoryDevice::write_byte(Addr addr, MicroSim::Byte d)
 {
 	*reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]) = d;
 }
-void MicroSim::MemoryDevice::write_word(Addr addr, std::uint16_t d)
+void MicroSim::MemoryDevice::write_word(Addr addr, MicroSim::Word d)
 {
 	*reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]) = d;
 }
-void MicroSim::MemoryDevice::write_dword(Addr addr, std::uint32_t d)
+void MicroSim::MemoryDevice::write_dword(Addr addr, MicroSim::DWord d)
 {
 	*reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]) = d;
 }
-void MicroSim::MemoryDevice::write_qword(Addr addr, std::uint64_t d)
+void MicroSim::MemoryDevice::write_qword(Addr addr, MicroSim::QWord d)
 {
 	*reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;
 }
 
-std::uint8_t MicroSim::DefaultMemDev::read_byte(Addr)
+MicroSim::Byte MicroSim::DefaultMemDev::read_byte(Addr)
 {
 	return 0;
 }
-std::uint16_t MicroSim::DefaultMemDev::read_word(Addr)
+MicroSim::Word MicroSim::DefaultMemDev::read_word(Addr)
 {
 	return 0;
 }
-std::uint32_t MicroSim::DefaultMemDev::read_dword(Addr)
+MicroSim::DWord MicroSim::DefaultMemDev::read_dword(Addr)
 {
 	return 0;
 }
-std::uint64_t MicroSim::DefaultMemDev::read_qword(Addr)
+MicroSim::QWord MicroSim::DefaultMemDev::read_qword(Addr)
 {
 	return 0;
 }
 
-void MicroSim::DefaultMemDev::write_byte(Addr, std::uint8_t)
+void MicroSim::DefaultMemDev::write_byte(Addr, MicroSim::Byte)
 {
 }
-void MicroSim::DefaultMemDev::write_word(Addr, std::uint16_t)
+void MicroSim::DefaultMemDev::write_word(Addr, MicroSim::Word)
 {
 }
-void MicroSim::DefaultMemDev::write_dword(Addr, std::uint32_t)
+void MicroSim::DefaultMemDev::write_dword(Addr, MicroSim::DWord)
 {
 }
-void MicroSim::DefaultMemDev::write_qword(Addr, std::uint64_t)
+void MicroSim::DefaultMemDev::write_qword(Addr, MicroSim::QWord)
 {
 }
 MicroSim::DefaultMemDev MicroSim::DefaultMemDev::s_defaultMemDev;
@@ -87,6 +91,7 @@ MicroSim::MemoryDevice &MicroSim::Memory::device_at(Addr _addr)
 void MicroSim::Memory::add_device(std::shared_ptr<MemoryDevice> &&dev)
 // void MicroSim::Memory::add_device(MemoryDevice *dev)
 {
+	if(!dev) return;
 	auto priority = dev->priority();
 	for(auto it = m_devices.begin(); it != m_devices.end(); it++)
 	{
@@ -106,28 +111,28 @@ void MicroSim::Memory::remove_device(std::shared_ptr<MemoryDevice> &&dev)
 	std::remove_if(m_devices.begin(), m_devices.end(), [&](auto &e){return e == dev; });
 }
 
-std::uint8_t MicroSim::Memory::read_byte_const(Addr addr) const
+MicroSim::Byte MicroSim::Memory::read_byte_const(Addr addr) const
 {
 	return 0;
 }
-std::uint16_t MicroSim::Memory::read_word_const(Addr addr) const
+MicroSim::Word MicroSim::Memory::read_word_const(Addr addr) const
 {
 	return 0;
 }
-std::uint32_t MicroSim::Memory::read_dword_const(Addr addr) const
+MicroSim::DWord MicroSim::Memory::read_dword_const(Addr addr) const
 {
 	return 0;
 }
-std::uint64_t MicroSim::Memory::read_qword_const(Addr addr) const
+MicroSim::QWord MicroSim::Memory::read_qword_const(Addr addr) const
 {
 	return 0;
 }
 
-std::uint8_t MicroSim::Memory::read_byte(Addr addr)
+MicroSim::Byte MicroSim::Memory::read_byte(Addr addr)
 {
 	std::uint8_t v = device_at(addr).read_byte(addr);
 	#ifdef DEBUG
-	std::cout 	<< "Read Byte " 
+	DEBUG_STREAM<< "Read Byte " 
 				<< std::showbase 
 				<< std::internal 
 				<< std::setfill('0')
@@ -141,26 +146,26 @@ std::uint8_t MicroSim::Memory::read_byte(Addr addr)
 	#endif
 	return v;
 }
-std::uint16_t MicroSim::Memory::read_word(Addr addr)
+MicroSim::Word MicroSim::Memory::read_word(Addr addr)
 {
 	auto v = device_at(addr).read_word(addr);
 	return v;
 }
-std::uint32_t MicroSim::Memory::read_dword(Addr addr)
+MicroSim::DWord MicroSim::Memory::read_dword(Addr addr)
 {
 	auto v = device_at(addr).read_dword(addr);
 	return v;
 }
-std::uint64_t MicroSim::Memory::read_qword(Addr addr)
+MicroSim::QWord MicroSim::Memory::read_qword(Addr addr)
 {
 	auto v = device_at(addr).read_qword(addr);
 	return v;
 }
 
-void MicroSim::Memory::write_byte(Addr addr, std::uint8_t d)
+void MicroSim::Memory::write_byte(Addr addr, MicroSim::Byte d)
 {
 	#ifdef DEBUG
-	std::cout 	<< "Write Byte " 
+	DEBUG_STREAM<< "Write Byte " 
 				<< std::showbase 
 				<< std::internal 
 				<< std::setfill('0')
@@ -174,17 +179,22 @@ void MicroSim::Memory::write_byte(Addr addr, std::uint8_t d)
 	#endif
 	device_at(addr).write_byte(addr, d);
 }
-void MicroSim::Memory::write_word(Addr addr, std::uint16_t d)
+void MicroSim::Memory::write_word(Addr addr, MicroSim::Word d)
 {
 	device_at(addr).write_word(addr, d);
 }
-void MicroSim::Memory::write_dword(Addr addr, std::uint32_t d)
+void MicroSim::Memory::write_dword(Addr addr, MicroSim::DWord d)
 {
 	device_at(addr).write_dword(addr, d);
 }
-void MicroSim::Memory::write_qword(Addr addr, std::uint64_t d)
+void MicroSim::Memory::write_qword(Addr addr, MicroSim::QWord d)
 {
 	device_at(addr).write_qword(addr, d);
+}
+
+void MicroSim::Memory::clock()
+{
+	
 }
 
 #ifdef WASM

@@ -4,26 +4,27 @@
 
 using namespace MicroSim::WDC;
 
-void CoreW65C02S_simple::push_word(std::uint16_t w)
+void CoreW65C02S_simple::push_word(MicroSim::Word w)
 {
 	push_byte(w>>8);
 	push_byte(w&0xFF);
 }
-std::uint16_t CoreW65C02S_simple::pop_word()
+MicroSim::Word CoreW65C02S_simple::pop_word()
 {
-	std::uint16_t w = 0;
+	MicroSim::Word w = 0;
 	w = pop_byte();
 	w |= pop_byte()<<8;
 	return w;
 }
 
-std::uint16_t CoreW65C02S_simple::read_word(Addr addr)
+MicroSim::Word CoreW65C02S_simple::read_word(Addr addr)
 {
-	std::uint16_t out = 0;
+	MicroSim::Word out = 0;
 	out |= read_byte(addr);
 	out |= read_byte(addr+1)<<8;
+	return out;
 }
-void CoreW65C02S_simple::write_word(Addr addr, std::uint16_t w)
+void CoreW65C02S_simple::write_word(Addr addr, MicroSim::Word w)
 {
 	write_byte(addr, w&0xFF);
 	write_byte(addr+1, w>>8);
@@ -39,11 +40,45 @@ void CoreW65C02S_simple::reset()
 	_cycles += 7;
 }
 
+void CoreW65C02S_simple::clock()
+{
+	if(!dec_cooldown()) step();
+}
+
+unsigned short int MicroSim::WDC::CoreW65C02S_simple::cooldown() const
+{
+	return m_cooldown;
+}
+
+void MicroSim::WDC::CoreW65C02S_simple::set_cooldown(unsigned short int d)
+{
+	m_cooldown = d;
+}
+
+unsigned short int MicroSim::WDC::CoreW65C02S_simple::dec_cooldown()
+{
+	if(m_cooldown) --m_cooldown;
+	return m_cooldown;
+}
+
+void MicroSim::WDC::CoreW65C02S_simple::update_cycles()
+{
+	m_cycles += _cycles;
+	m_cooldown = _cycles;
+	_cycles = 0;
+}
+
+void MicroSim::WDC::CoreW65C02S_simple::do_cycle()
+{
+	_cycles++;
+	clock_mem();
+}
+
 void CoreW65C02S_simple::step()
 {
 	//get the next instruction
-	std::uint8_t instr = read_byte(PC++);
-	_cycles++;
+	MicroSim::Byte instr = read_byte(PC++);
+	do_cycle();
 	switch(instr){
 		case 0x00: op_brk(addrm_immb()); break;
 		case 0x01: op_ora(addrm_zpx_ind()); break;
@@ -328,6 +363,7 @@ EMSCRIPTEN_BINDINGS(W65C02S_simple){
 	emscripten::class_<
 		MicroSim::WDC::CoreW65C02S_simple, 
 		emscripten::base<MicroSim::WDC::Core6502>>("CoreW65C02S_simple")
+		.function("step", &MicroSim::WDC::CoreW65C02S_simple::step)
 	;
 }
 

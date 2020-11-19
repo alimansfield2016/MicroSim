@@ -8,13 +8,20 @@ namespace MicroSim::WDC
 	{
 	public:
 		void reset() override;
-		void step() override;
-
+		void clock() override;
+		void step();
 	protected:
-		void push_word(std::uint16_t);
-		std::uint16_t pop_word();
-		std::uint16_t read_word(Addr);
-		void write_word(Addr, std::uint16_t);
+		unsigned short int _cycles;
+		unsigned short int m_cooldown;
+		unsigned short int cooldown() const;
+		unsigned short int dec_cooldown();
+		void set_cooldown(unsigned short int);
+		void do_cycle();
+		void update_cycles();
+		void push_word(Word);
+		Word pop_word();
+		Word read_word(Addr);
+		void write_word(Addr, Word);
 
 	private:
 

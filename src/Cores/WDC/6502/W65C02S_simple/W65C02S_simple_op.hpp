@@ -4,10 +4,10 @@ using namespace MicroSim::WDC;
 
 void CoreW65C02S_simple::op_adc(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t v = read_byte(op_addr);
-	std::uint8_t t = A;
-	std::uint16_t res = v + A + C;
-	A = static_cast<std::uint8_t>(res);
+	MicroSim::Byte v = read_byte(op_addr);
+	MicroSim::Byte t = A;
+	MicroSim::Word res = v + A + C;
+	A = static_cast<MicroSim::Byte>(res);
 	C = (res&0x100)>0;
 	N = (A&0x80)>0;
 	Z = (A == 0);
@@ -16,7 +16,7 @@ void CoreW65C02S_simple::op_adc(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_and(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	A &= v;
 	N = (A&0x80)>0;
 	Z = (A == 0);
@@ -25,7 +25,7 @@ void CoreW65C02S_simple::op_and(CoreW65C02S_simple::Addr op_addr)
 void CoreW65C02S_simple::op_asl(CoreW65C02S_simple::Addr op_addr)
 {
 	 //memory
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	C = v&0x80;
 	v <<=1;
 	Z = (v==0);
@@ -65,7 +65,7 @@ void CoreW65C02S_simple::op_beq(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_bit(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t v = A^read_byte(op_addr);
+	MicroSim::Byte v = A^read_byte(op_addr);
 	_cycles++;
 	P &= ~0xC0;
 	P |= v&0xC0;
@@ -99,7 +99,7 @@ void CoreW65C02S_simple::op_bra(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_brk(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t sig = read_byte(op_addr);
+	MicroSim::Byte sig = read_byte(op_addr);
 	push_word(PC);
 	push_byte(P);
 	PC = read_word(vec_brk);
@@ -144,8 +144,8 @@ void CoreW65C02S_simple::op_clv(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_cmp(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t m = read_byte(op_addr);
-	std::uint16_t res = A - m;
+	MicroSim::Byte m = read_byte(op_addr);
+	MicroSim::Word res = A - m;
 	N = res&0x80;
 	Z = res==0;
 	C = res&0x100;
@@ -154,8 +154,8 @@ void CoreW65C02S_simple::op_cmp(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_cpx(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t m = read_byte(op_addr);
-	std::uint16_t res = X - m;
+	MicroSim::Byte m = read_byte(op_addr);
+	MicroSim::Word res = X - m;
 	N = res&0x80;
 	Z = res==0;
 	C = res&0x100;
@@ -164,8 +164,8 @@ void CoreW65C02S_simple::op_cpx(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_cpy(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t m = read_byte(op_addr);
-	std::uint16_t res = Y - m;
+	MicroSim::Byte m = read_byte(op_addr);
+	MicroSim::Word res = Y - m;
 	N = res&0x80;
 	Z = res==0;
 	C = res&0x100;
@@ -175,7 +175,7 @@ void CoreW65C02S_simple::op_cpy(CoreW65C02S_simple::Addr op_addr)
 void CoreW65C02S_simple::op_dec(CoreW65C02S_simple::Addr op_addr)
 {
 	 //memory
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	v--;
 	Z = (v==0);
 	N = (A&0x80)>0;
@@ -206,7 +206,7 @@ void CoreW65C02S_simple::op_dey(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_eor(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	A ^= v;
 	N = (A&0x80)>0;
 	Z = (A == 0);
@@ -215,7 +215,7 @@ void CoreW65C02S_simple::op_eor(CoreW65C02S_simple::Addr op_addr)
 void CoreW65C02S_simple::op_inc(CoreW65C02S_simple::Addr op_addr)
 {
 	 //memory
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	v++;
 	Z = (v==0);
 	N = (A&0x80)>0;
@@ -272,7 +272,7 @@ void CoreW65C02S_simple::op_ldy(CoreW65C02S_simple::Addr op_addr)
 void CoreW65C02S_simple::op_lsr(CoreW65C02S_simple::Addr op_addr)
 {
 	 //memory
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	C = v&0x01;
 	v >>=1;
 	Z = (v==0);
@@ -295,7 +295,7 @@ void CoreW65C02S_simple::op_nop(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_ora(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	A |= v;
 	N = (A&0x80)>0;
 	Z = (A == 0);
@@ -344,7 +344,7 @@ void CoreW65C02S_simple::op_ply(CoreW65C02S_simple::Addr op_addr)
 void CoreW65C02S_simple::op_rol(CoreW65C02S_simple::Addr op_addr)
 {
 	 //memory
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	
 	bool c = v&0x80;
 	v <<=1;
@@ -371,7 +371,7 @@ void CoreW65C02S_simple::op_rola(CoreW65C02S_simple::Addr op_addr)
 void CoreW65C02S_simple::op_ror(CoreW65C02S_simple::Addr op_addr)
 {
 	 //memory
-	std::uint8_t v = read_byte(op_addr);
+	MicroSim::Byte v = read_byte(op_addr);
 	
 	bool c = v&0x01;
 	v >>=1;
@@ -408,10 +408,10 @@ void CoreW65C02S_simple::op_rts(CoreW65C02S_simple::Addr op_addr)
 }
 void CoreW65C02S_simple::op_sbc(CoreW65C02S_simple::Addr op_addr)
 {
-	std::uint8_t v = ~read_byte(op_addr);
-	std::uint8_t t = A;
-	std::uint16_t res = A + v + C;
-	A = static_cast<std::uint8_t>(res);
+	MicroSim::Byte v = ~read_byte(op_addr);
+	MicroSim::Byte t = A;
+	MicroSim::Word res = A + v + C;
+	A = static_cast<MicroSim::Byte>(res);
 	C = (res&0x100)>0;
 	N = (A&0x80)>0;
 	Z = (A == 0);
