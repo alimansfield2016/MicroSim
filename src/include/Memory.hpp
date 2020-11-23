@@ -18,15 +18,18 @@ namespace MicroSim
 		const std::uint8_t m_priority;
 		std::uint8_t *m_data;
 	public:
-		constexpr MemoryDevice(Addr _low, Addr _high, std::uint8_t *_data) :
+		constexpr MemoryDevice(Addr _low, Addr _high, std::uint8_t *_data, unsigned long int _freq = 0) :
+			Device{_freq},
 			m_low{_low},
 			m_high{_high},
 			m_priority{0},
 			m_data{_data} {}
-		virtual ~MemoryDevice(){}
+		virtual ~MemoryDevice() override {}
 		constexpr Addr low() const { return m_low; }
 		constexpr Addr high() const { return m_high; }
+		constexpr Addr size() const { return m_high - m_low; }
 		constexpr Addr priority() const { return m_priority; }
+		
 		virtual Byte read_byte(Addr);
 		virtual Word read_word(Addr);
 		virtual DWord read_dword(Addr);
@@ -35,6 +38,17 @@ namespace MicroSim
 		virtual void write_word(Addr, Word);
 		virtual void write_dword(Addr, DWord);
 		virtual void write_qword(Addr, QWord);
+
+		//Allow reading without side-effects (IO)
+		virtual Byte read_byte_const(Addr) const ;
+		virtual Word read_word_const(Addr) const ;
+		virtual DWord read_dword_const(Addr) const ;
+		virtual QWord read_qword_const(Addr) const ;
+		//Allow writing to non-writeable areas (ROM)
+		virtual void write_byte_override(Addr, Byte);
+		virtual void write_word_override(Addr, Word);
+		virtual void write_dword_override(Addr, DWord);
+		virtual void write_qword_override(Addr, QWord);
 
 		void clock() override{};
 		void reset() override{};
@@ -66,25 +80,30 @@ namespace MicroSim
 	class Memory
 	{
 		std::vector<
-			std::shared_ptr<MemoryDevice>
-			// MemoryDevice*
+			// std::shared_ptr<MemoryDevice>
+			MemoryDevice*
 		> m_devices;
 
+		const MemoryDevice &device_at(Addr) const;
 		MemoryDevice &device_at(Addr);
 		//some kind of tree structure 
 		//to hold all of the 
 		//memory devices
 	
 	public:
-		[[nodiscard]] Byte read_byte_const(Addr) const;
-		[[nodiscard]] Word read_word_const(Addr) const;
-		[[nodiscard]] DWord read_dword_const(Addr) const;
-		[[nodiscard]] QWord read_qword_const(Addr) const;
+		[[nodiscard]] Byte read_byte_const(Addr) const ;
+		[[nodiscard]] Word read_word_const(Addr) const ;
+		[[nodiscard]] DWord read_dword_const(Addr) const ;
+		[[nodiscard]] QWord read_qword_const(Addr) const ;
+		void write_byte_override(Addr, Byte);
+		void write_word_override(Addr, Word);
+		void write_dword_override(Addr, DWord);
+		void write_qword_override(Addr, QWord);
 		Memory(){}
-		// void add_device(MemoryDevice*);
-		void add_device(std::shared_ptr<MemoryDevice>&&);
-		// void remove_device(MemoryDevice*);
-		void remove_device(std::shared_ptr<MemoryDevice>&&);
+		void add_device(MemoryDevice*);
+		// void add_device(std::shared_ptr<MemoryDevice>);
+		void remove_device(MemoryDevice*);
+		// void remove_device(std::shared_ptr<MemoryDevice>);
 
 		Byte read_byte(Addr);
 		Word read_word(Addr);

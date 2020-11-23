@@ -5,12 +5,19 @@
 #include <iostream>
 #include <iomanip>
 
-// #define DEBUG
+// #define _DEBUG
 #ifdef WASM
 #define DEBUG_STREAM std::cout
 #else
 #define DEBUG_STREAM std::clog
 #endif
+
+#ifdef _DEBUG
+#define DEBUG(...) MicroSim::debug_print(__VA_ARGS__)
+#else
+#define DEBUG(...)
+#endif
+
 
 MicroSim::Byte MicroSim::MemoryDevice::read_byte(Addr addr)
 {
@@ -45,6 +52,42 @@ void MicroSim::MemoryDevice::write_qword(Addr addr, MicroSim::QWord d)
 {
 	*reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;
 }
+
+
+MicroSim::Byte MicroSim::MemoryDevice::read_byte_const(Addr addr) const
+{
+		return *reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]);
+}
+MicroSim::Word MicroSim::MemoryDevice::read_word_const(Addr addr) const
+{
+		return *reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]);
+}
+MicroSim::DWord MicroSim::MemoryDevice::read_dword_const(Addr addr) const
+{
+		return *reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]);
+}
+MicroSim::QWord MicroSim::MemoryDevice::read_qword_const(Addr addr) const
+{
+		return *reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]);
+}
+
+void MicroSim::MemoryDevice::write_byte_override(Addr addr, MicroSim::Byte d)
+{
+	*reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]) = d;
+}
+void MicroSim::MemoryDevice::write_word_override(Addr addr, MicroSim::Word d)
+{
+	*reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]) = d;
+}
+void MicroSim::MemoryDevice::write_dword_override(Addr addr, MicroSim::DWord d)
+{
+	*reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]) = d;
+}
+void MicroSim::MemoryDevice::write_qword_override(Addr addr, MicroSim::QWord d)
+{
+	*reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;
+}
+
 
 MicroSim::Byte MicroSim::DefaultMemDev::read_byte(Addr)
 {
@@ -82,68 +125,60 @@ MicroSim::MemoryDevice &MicroSim::Memory::device_at(Addr _addr)
 	for(auto &it : m_devices)
 	{
 		if(it->low() > _addr) continue;
-		if(it->high() < _addr) continue;
+		if(it->high() <= _addr) continue;
+		return *it;
+	}
+	return DefaultMemDev::s_defaultMemDev;
+}
+const MicroSim::MemoryDevice &MicroSim::Memory::device_at(Addr _addr) const
+{
+	for(auto &it : m_devices)
+	{
+		if(it->low() > _addr) continue;
+		if(it->high() <= _addr) continue;
 		return *it;
 	}
 	return DefaultMemDev::s_defaultMemDev;
 }
 
-void MicroSim::Memory::add_device(std::shared_ptr<MemoryDevice> &&dev)
-// void MicroSim::Memory::add_device(MemoryDevice *dev)
+// void MicroSim::Memory::add_device(std::shared_ptr<MemoryDevice> dev)
+void MicroSim::Memory::add_device(MemoryDevice *dev)
 {
 	if(!dev) return;
 	auto priority = dev->priority();
 	for(auto it = m_devices.begin(); it != m_devices.end(); it++)
 	{
 		if(priority > (*it)->priority()){
-			// m_devices.insert(it, dev);
-			m_devices.insert(it, std::move(dev));
+			m_devices.insert(it, dev);
+			// m_devices.insert(it, std::move(dev));
 			break;
 		}
 	}
-	m_devices.push_back(std::move(dev));
-	// m_devices.push_back(dev);
+	// m_devices.push_back(std::move(dev));
+	m_devices.push_back(dev);
 
 }
-void MicroSim::Memory::remove_device(std::shared_ptr<MemoryDevice> &&dev)
-// void MicroSim::Memory::remove_device(MemoryDevice *dev)
+// void MicroSim::Memory::remove_device(std::shared_ptr<MemoryDevice> dev)
+void MicroSim::Memory::remove_device(MemoryDevice *dev)
 {
 	std::remove_if(m_devices.begin(), m_devices.end(), [&](auto &e){return e == dev; });
-}
-
-MicroSim::Byte MicroSim::Memory::read_byte_const(Addr addr) const
-{
-	return 0;
-}
-MicroSim::Word MicroSim::Memory::read_word_const(Addr addr) const
-{
-	return 0;
-}
-MicroSim::DWord MicroSim::Memory::read_dword_const(Addr addr) const
-{
-	return 0;
-}
-MicroSim::QWord MicroSim::Memory::read_qword_const(Addr addr) const
-{
-	return 0;
 }
 
 MicroSim::Byte MicroSim::Memory::read_byte(Addr addr)
 {
 	std::uint8_t v = device_at(addr).read_byte(addr);
-	#ifdef DEBUG
-	DEBUG_STREAM<< "Read Byte " 
-				<< std::showbase 
-				<< std::internal 
-				<< std::setfill('0')
-				<< std::hex
-				<< std::setw(4)
-				<< addr
-				<< ":"
-				<< std::setw(2)
-				<< (v&0xFF)
-				<< '\n';
-	#endif
+	DEBUG(DEBUG_STREAM,
+			"Read Byte ",
+			std::showbase ,
+			std::internal ,
+			std::setfill('0'),
+			std::hex,
+			std::setw(4),
+			addr,
+			":",
+			std::setw(2),
+			(v&0xFF),
+			'\n');
 	return v;
 }
 MicroSim::Word MicroSim::Memory::read_word(Addr addr)
@@ -164,19 +199,18 @@ MicroSim::QWord MicroSim::Memory::read_qword(Addr addr)
 
 void MicroSim::Memory::write_byte(Addr addr, MicroSim::Byte d)
 {
-	#ifdef DEBUG
-	DEBUG_STREAM<< "Write Byte " 
-				<< std::showbase 
-				<< std::internal 
-				<< std::setfill('0')
-				<< std::hex
-				<< std::setw(4)
-				<< addr
-				<< ":"
-				<< std::setw(2)
-				<< (d&0xFF)
-				<< '\n';
-	#endif
+	DEBUG(DEBUG_STREAM,
+			"Write Byte " ,
+			std::showbase ,
+			std::internal ,
+			std::setfill('0'),
+			std::hex,
+			std::setw(4),
+			addr,
+			":",
+			std::setw(2),
+			(d&0xFF),
+			'\n');
 	device_at(addr).write_byte(addr, d);
 }
 void MicroSim::Memory::write_word(Addr addr, MicroSim::Word d)
@@ -192,6 +226,40 @@ void MicroSim::Memory::write_qword(Addr addr, MicroSim::QWord d)
 	device_at(addr).write_qword(addr, d);
 }
 
+MicroSim::Byte MicroSim::Memory::read_byte_const(Addr addr) const
+{
+	return device_at(addr).read_byte_const(addr);
+}
+MicroSim::Word MicroSim::Memory::read_word_const(Addr addr) const
+{
+	return device_at(addr).read_word_const(addr);
+}
+MicroSim::DWord MicroSim::Memory::read_dword_const(Addr addr) const
+{
+	return device_at(addr).read_dword_const(addr);
+}
+MicroSim::QWord MicroSim::Memory::read_qword_const(Addr addr) const
+{
+	return device_at(addr).read_qword_const(addr);
+}
+
+void MicroSim::Memory::write_byte_override(Addr addr, MicroSim::Byte v)
+{
+	return device_at(addr).write_byte_override(addr, v);
+}
+void MicroSim::Memory::write_word_override(Addr addr, MicroSim::Word v)
+{
+	return device_at(addr).write_word_override(addr, v);
+}
+void MicroSim::Memory::write_dword_override(Addr addr, MicroSim::DWord v)
+{
+	return device_at(addr).write_dword_override(addr, v);
+}
+void MicroSim::Memory::write_qword_override(Addr addr, MicroSim::QWord v)
+{
+	return device_at(addr).write_qword_override(addr, v);
+}
+
 void MicroSim::Memory::clock()
 {
 	
@@ -202,24 +270,29 @@ void MicroSim::Memory::clock()
 
 EMSCRIPTEN_BINDINGS(Memory){
 	emscripten::class_<MicroSim::Memory>("Memory")
-		// .constructor<>()
-		.smart_ptr_constructor("Simulation", &std::make_unique<MicroSim::Memory>)
+		.constructor<>()
+		// .smart_ptr_constructor("Simulation", &std::make_unique<MicroSim::Memory>)
 		.function("read_byte", &MicroSim::Memory::read_byte)
 		.function("read_word", &MicroSim::Memory::read_word)
 		.function("read_dword", &MicroSim::Memory::read_dword)
 		.function("read_qword", &MicroSim::Memory::read_qword)
-		.function("read_byte_const", &MicroSim::Memory::read_byte_const)
-		.function("read_word_const", &MicroSim::Memory::read_word_const)
-		.function("read_dword_const", &MicroSim::Memory::read_dword_const)
-		.function("read_qword_const", &MicroSim::Memory::read_qword_const)
 		.function("write_byte", &MicroSim::Memory::write_byte)
 		.function("write_word", &MicroSim::Memory::write_word)
 		.function("write_dword", &MicroSim::Memory::write_dword)
 		.function("write_qword", &MicroSim::Memory::write_qword)
+		.function("read_byte_const", &MicroSim::Memory::read_byte_const)
+		.function("read_word_const", &MicroSim::Memory::read_word_const)
+		.function("read_dword_const", &MicroSim::Memory::read_dword_const)
+		.function("read_qword_const", &MicroSim::Memory::read_qword_const)
+		.function("write_byte_override", &MicroSim::Memory::write_byte_override)
+		.function("write_word_override", &MicroSim::Memory::write_word_override)
+		.function("write_dword_override", &MicroSim::Memory::write_dword_override)
+		.function("write_qword_override", &MicroSim::Memory::write_qword_override)
 		.function("add_device", &MicroSim::Memory::add_device, emscripten::allow_raw_pointers())
 		.function("remove_device", &MicroSim::Memory::remove_device, emscripten::allow_raw_pointers())
 		;
-	emscripten::class_<MicroSim::MemoryDevice>("MemoryDevice")
+	emscripten::class_<MicroSim::MemoryDevice,
+						emscripten::base<MicroSim::Device>>("MemoryDevice")
 		.constructor<MicroSim::Addr, MicroSim::Addr, std::uint8_t*>()
 		.function("low", &MicroSim::MemoryDevice::low)
 		.function("high", &MicroSim::MemoryDevice::high)
@@ -232,24 +305,21 @@ EMSCRIPTEN_BINDINGS(Memory){
 		.function("write_word", &MicroSim::MemoryDevice::write_word)
 		.function("write_dword", &MicroSim::MemoryDevice::write_dword)
 		.function("write_qword", &MicroSim::MemoryDevice::write_qword)
+		.function("read_byte_const", &MicroSim::MemoryDevice::read_byte_const)
+		.function("read_word_const", &MicroSim::MemoryDevice::read_word_const)
+		.function("read_dword_const", &MicroSim::MemoryDevice::read_dword_const)
+		.function("read_qword_const", &MicroSim::MemoryDevice::read_qword_const)
+		.function("write_byte_override", &MicroSim::MemoryDevice::write_byte_override)
+		.function("write_word_override", &MicroSim::MemoryDevice::write_word_override)
+		.function("write_dword_override", &MicroSim::MemoryDevice::write_dword_override)
+		.function("write_qword_override", &MicroSim::MemoryDevice::write_qword_override)
+		.smart_ptr<std::shared_ptr<MicroSim::MemoryDevice>>("MemoryDevice")
 		;
 	emscripten::class_<MicroSim::DefaultMemDev, emscripten::base<MicroSim::MemoryDevice>>("DefaultMemoryDevice")
 		.constructor<>()
 		.constructor<MicroSim::Addr, MicroSim::Addr>()
 		;
 
-	emscripten::class_<MicroSim::Rom, emscripten::base<MicroSim::MemoryDevice>>("Rom")
-		.constructor<std::size_t, MicroSim::Addr>()
-		.function("fill", &MicroSim::Rom::fill, emscripten::allow_raw_pointers())
-		.function("override_write_byte", &MicroSim::Rom::override_write_byte)
-		.function("override_write_word", &MicroSim::Rom::override_write_word)
-		.function("override_write_dword", &MicroSim::Rom::override_write_dword)
-		.function("override_write_qword", &MicroSim::Rom::override_write_qword)
-		;
-
-	emscripten::class_<MicroSim::Ram, emscripten::base<MicroSim::MemoryDevice>>("Ram")
-		.constructor<std::size_t, MicroSim::Addr>()
-		;
 }
 
 #endif
