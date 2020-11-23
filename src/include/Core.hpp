@@ -6,6 +6,9 @@
 #include <vector>
 #include <string>
 
+using MicroSim::low;
+using MicroSim::high;
+
 namespace MicroSim
 {
 	class Core;
@@ -16,7 +19,6 @@ namespace MicroSim
 	};
 	class Core : public Device
 	{
-		const unsigned long int m_frequency;
 
 		// registers (for GDB)
 		const std::vector<
@@ -36,7 +38,11 @@ namespace MicroSim
 	public:
 		unsigned long int cycles() const;
 		Memory &memory() { return m_memory; };
+		const Memory &memory() const { return m_memory; };
 		std::string registers() const;
+		// void register_memory_device(std::shared_ptr<MicroSim::MemoryDevice> dev);
+		void register_memory_device(MicroSim::MemoryDevice *dev);
+		void unregister_memory_device(MicroSim::MemoryDevice *dev);
 
 	public:
 		virtual ~Core();
