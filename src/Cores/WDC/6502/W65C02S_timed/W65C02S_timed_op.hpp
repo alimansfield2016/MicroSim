@@ -122,8 +122,8 @@ void CoreW65C02S_timed::op_bra()
 void CoreW65C02S_timed::op_br()
 {
 	read_byte(PC);
-	MicroSim::Word pcl = PC.low() + _addr;
-	PC.low() = pcl;
+	MicroSim::Word pcl = low(PC) + _addr;
+	low(PC) = pcl;
 	if(!(!!(pcl&0x100) ^ !!(_addr&0x80)))
 		state = State::FETCH;
 	op = &CoreW65C02S_timed::op_br2;
@@ -131,7 +131,7 @@ void CoreW65C02S_timed::op_br()
 void CoreW65C02S_timed::op_br2()
 {
 	read_byte(PC);
-	PC.high()++;
+	high(PC)++;
 }
 /*
 
@@ -156,12 +156,12 @@ void CoreW65C02S_timed::op_brk()
 }
 void CoreW65C02S_timed::op_brk2()
 {
-	push_byte(PC.high());
+	push_byte(high(PC));
 	op = &CoreW65C02S_timed::op_brk3;
 }
 void CoreW65C02S_timed::op_brk3()
 {
-	push_byte(PC.low());
+	push_byte(low(PC));
 	op = &CoreW65C02S_timed::op_brk4;
 }
 void CoreW65C02S_timed::op_brk4()
@@ -294,12 +294,12 @@ void CoreW65C02S_timed::op_iny()
 
 void CoreW65C02S_timed::op_jmp()
 {
-	PC.low() = read_byte(_addr);
+	low(PC) = read_byte(_addr);
 	op = &CoreW65C02S_timed::op_jmp2;
 }
 void CoreW65C02S_timed::op_jmp2()
 {
-	PC.high() = read_byte(_addr+1);
+	high(PC) = read_byte(_addr+1);
 	state = State::FETCH;
 }
 
@@ -315,18 +315,18 @@ void CoreW65C02S_timed::op_jsr2()
 }
 void CoreW65C02S_timed::op_jsr3()
 {
-	push_byte(PC.high());
+	push_byte(high(PC));
 	op = &CoreW65C02S_timed::op_jsr4;
 }
 void CoreW65C02S_timed::op_jsr4()
 {
-	push_byte(PC.low());
+	push_byte(low(PC));
 	op = &CoreW65C02S_timed::op_jsr5;
 }
 void CoreW65C02S_timed::op_jsr5()
 {
-	PC.high() = read_byte(_addr++);
-	PC.low() = TMP;
+	high(PC) = read_byte(_addr++);
+	low(PC) = TMP;
 	state = State::FETCH;
 }
 
@@ -529,12 +529,12 @@ void CoreW65C02S_timed::op_rti()
 }
 void CoreW65C02S_timed::op_rts()
 {
-	_addr.low() = pop_byte();
+	low(_addr) = pop_byte();
 	op = &CoreW65C02S_timed::op_rts2;
 }
 void CoreW65C02S_timed::op_rts2()
 {
-	_addr.high() = pop_byte();
+	high(_addr) = pop_byte();
 	op = &CoreW65C02S_timed::op_rts3;
 }
 void CoreW65C02S_timed::op_rts3()
@@ -653,12 +653,12 @@ void CoreW65C02S_timed::op_tsb_m()
 
 void CoreW65C02S_timed::op_vecl()
 {
-	PC.low() = read_byte(_addr);
+	low(PC) = read_byte(_addr);
 	op = &CoreW65C02S_timed::op_vech;
 }
 void CoreW65C02S_timed::op_vech()
 {
-	PC.high() = read_byte(_addr+1);
+	high(PC) = read_byte(_addr+1);
 	state = State::FETCH;
 }
 

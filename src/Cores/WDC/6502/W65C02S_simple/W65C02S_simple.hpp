@@ -7,6 +7,8 @@ namespace MicroSim::WDC
 	class CoreW65C02S_simple : public Core6502
 	{
 	public:
+		CoreW65C02S_simple(unsigned long int);
+		~CoreW65C02S_simple() override;
 		void reset() override;
 		void clock() override;
 		void step();

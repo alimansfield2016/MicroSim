@@ -30,6 +30,12 @@ void CoreW65C02S_simple::write_word(Addr addr, MicroSim::Word w)
 	write_byte(addr+1, w>>8);
 }
 
+CoreW65C02S_simple::CoreW65C02S_simple(unsigned long int _freq) : 
+	Core6502{_freq}
+{}
+CoreW65C02S_simple::~CoreW65C02S_simple(){
+
+}
 void CoreW65C02S_simple::reset()
 {
 	Addr _rst_vec = read_word(vec_res);
@@ -44,6 +50,7 @@ void CoreW65C02S_simple::clock()
 {
 	if(!dec_cooldown()) step();
 }
+
 
 unsigned short int MicroSim::WDC::CoreW65C02S_simple::cooldown() const
 {
@@ -360,9 +367,11 @@ void CoreW65C02S_simple::step()
 #include <emscripten/bind.h>
 
 EMSCRIPTEN_BINDINGS(W65C02S_simple){
-	emscripten::class_<
-		MicroSim::WDC::CoreW65C02S_simple, 
-		emscripten::base<MicroSim::WDC::Core6502>>("CoreW65C02S_simple")
+	emscripten::class_<	MicroSim::WDC::CoreW65C02S_simple, 
+						emscripten::base<MicroSim::WDC::Core6502>
+					>("CoreW65C02S_simple")
+		.constructor<unsigned long int>()
+		// .constructor<unsigned long int>(&std::make_unique<MicroSim::WDC::CoreW65C02S_simple>)
 		.function("step", &MicroSim::WDC::CoreW65C02S_simple::step)
 	;
 }

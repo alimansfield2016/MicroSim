@@ -2,7 +2,17 @@
 #include "W65C02S_timed_addrm.hpp"
 #include "W65C02S_timed_op.hpp"
 
+#include <iostream>
+
 using namespace MicroSim::WDC;
+
+CoreW65C02S_timed::CoreW65C02S_timed(unsigned long int _freq) : 
+	Core6502{_freq} 
+{}
+
+CoreW65C02S_timed::~CoreW65C02S_timed(){
+
+}
 
 void CoreW65C02S_timed::clock()
 {
@@ -24,9 +34,11 @@ void CoreW65C02S_timed::clock()
 
 void CoreW65C02S_timed::reset()
 {
+	// std::cout << "CoreW65C02S_timed::reset()\n";
 	state = State::EXEC;
 	op = &CoreW65C02S_timed::op_reset;
 }
+
 
 void CoreW65C02S_timed::op_reset()
 {
@@ -317,3 +329,14 @@ void CoreW65C02S_timed::decode(std::uint8_t instr)
 	}
 }
 
+#ifdef WASM
+#include <emscripten/bind.h>
+EMSCRIPTEN_BINDINGS(CoreW65C02S_timed){
+	emscripten::class_<	MicroSim::WDC::CoreW65C02S_timed,
+						emscripten::base<MicroSim::WDC::Core6502>
+						>("CoreW65C02S_timed")
+		.constructor<unsigned long int>()
+		// .constructor<unsigned long int>(&std::make_unique<MicroSim::WDC::CoreW65C02S_timed>)
+		;
+}
+#endif

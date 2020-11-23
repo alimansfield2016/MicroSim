@@ -7,6 +7,8 @@ namespace MicroSim::WDC
 	class CoreW65C02S_timed : public Core6502
 	{
 	public:
+		CoreW65C02S_timed(unsigned long int);
+		~CoreW65C02S_timed() override;
 		void clock() override;
 		void reset() override;
 	private:

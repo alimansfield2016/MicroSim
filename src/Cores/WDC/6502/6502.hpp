@@ -15,23 +15,23 @@ namespace MicroSim::WDC
 		Byte Y;
 		Byte SP;
 		union{
-			std::uint8_t P;
+			Byte P;
 			struct{
-				std::uint8_t C:1;
-				std::uint8_t Z:1;
-				std::uint8_t I:1;
-				std::uint8_t D:1;
-				std::uint8_t B:1;
-				std::uint8_t U:1;
-				std::uint8_t V:1;
-				std::uint8_t N:1;
+				Byte C:1;
+				Byte Z:1;
+				Byte I:1;
+				Byte D:1;
+				Byte B:1;
+				Byte U:1;
+				Byte V:1;
+				Byte N:1;
 			};
 		};
 		Word PC;
 		
-		Core6502();
 	public:
-		// ~Core6502() override;
+		Core6502(unsigned long int);
+		~Core6502() override;
 		virtual void clock() override = 0;
 		virtual void reset() override = 0;
 		// static std::shared_ptr<Core> createCore();

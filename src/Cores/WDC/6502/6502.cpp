@@ -3,7 +3,7 @@
 using namespace MicroSim::WDC;
 
 
-Core6502::Core6502() : 
+Core6502::Core6502(unsigned long int _freq) : 
 	Core{{
 		{"A", 1, &A},
 		{"X", 1, &X},
@@ -11,11 +11,11 @@ Core6502::Core6502() :
 		{"P", 1, &P},
 		{"SP", 1, &SP},
 		{"PC", 2, &PC}
-	},
-	1000000}
-{
+	}, _freq} 
+{}
+Core6502::~Core6502()
+{}
 
-}
 MicroSim::Byte Core6502::read_byte(Addr addr)
 {
 	return m_memory.read_byte(addr);
@@ -35,3 +35,13 @@ MicroSim::Byte Core6502::pop_byte()
 {
 	return m_memory.read_byte(0x100|++SP);
 }
+
+#ifdef WASM
+#include <emscripten/bind.h>
+EMSCRIPTEN_BINDINGS(Core6502){
+	emscripten::class_<	MicroSim::WDC::Core6502,
+						emscripten::base<MicroSim::Core>
+					>("Core6502")
+		;
+}
+#endif
