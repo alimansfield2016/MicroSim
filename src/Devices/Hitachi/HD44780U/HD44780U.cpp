@@ -176,7 +176,7 @@ MicroSim::Byte MicroSim::Hitachi::MemoryDeviceHD44780U::charCode(MicroSim::Byte 
 	Byte addr = idx + m_shift;
 	if(addr >= 80)
 		addr -= 80;
-	DEBUG(DEBUG_STREAM, "getting charcode at addr: ",int(addr),'\n');
+	// DEBUG(DEBUG_STREAM, "getting charcode at addr: ",int(addr),'\n');
 	return m_DDRAM[addr];
 }
 
@@ -188,15 +188,15 @@ MicroSim::Byte MicroSim::Hitachi::MemoryDeviceHD44780U::genChar(MicroSim::Byte c
 		addr &= 0x07;
 		addr <<= 3;
 		addr += offset;
-		DEBUG(DEBUG_STREAM, "reading CGRAM bits: ",m_CGRAM[addr],'\n');
+		// DEBUG(DEBUG_STREAM, "reading CGRAM bits: ",m_CGRAM[addr],'\n');
 		return m_CGRAM[addr];
 	}else{
 		//CGROM
 		addr -= 16;
 		addr <<= 4;
 		addr += offset;
-		DEBUG(DEBUG_STREAM, "reading CGR0M addr: ",addr,'\n');
-		DEBUG(DEBUG_STREAM, "reading CGR0M bits: ",m_CGRAM[addr],'\n');
+		// DEBUG(DEBUG_STREAM, "reading CGR0M addr: ",addr,'\n');
+		// DEBUG(DEBUG_STREAM, "reading CGR0M bits: ",m_CGRAM[addr],'\n');
 		return s_CGROM[addr];
 	}
 	return 0;
