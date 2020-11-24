@@ -1,0 +1,120 @@
+:root{
+	--lcd-pixel: 3px;
+}
+
+body{
+	min-height: 100%;
+}
+
+.lcd{
+	--pixel: var(--lcd-pixel);
+	display: grid;
+	grid-template-columns: repeat(var(--lcd-width, 8), auto);
+	grid-template-rows: repeat(var(--lcd-height, 2), auto);
+	/* background: blue; */
+	background-color: #1a40d0;
+	color: #000000;
+	padding: calc(var(--pixel) * 3);
+	border: 2px black solid;
+}
+
+.char{
+	--pixel: var(--lcd-pixel);
+	width: calc(var(--pixel) * var(--char-width, 5));
+	height: calc(var(--pixel) * var(--char-height, 8));
+	background-color: #2a0dc9;
+	color: cornflowerblue;
+	margin: calc(var(--pixel) / 2);
+	display: grid;
+	grid-template-columns: repeat(var(--char-width, 5), var(--pixel));
+	grid-template-rows: repeat(var(--char-height, 8), var(--pixel));
+}
+
+.pixel{
+	margin: 0;
+	border: 0;
+	padding: 0;
+	visibility: hidden;
+	background-color: cornflowerblue;
+}
+
+.dragable{
+	position: absolute;
+	z-index: 9;
+
+}
+.handle{
+	cursor: move;
+	/* background-color: #f1f1f1; */
+	/* border: 1px solid #d3d3d3; */
+	/* text-align: center; */
+}
+
+.simulation{
+	width: 100px;
+	height: 100px;
+	background-color: red;
+}
+
+.simulation > button{
+	/* width: 20px;
+	height: 20px;
+	margin: 0;
+	padding: 0;
+	border: 2px;
+	border-width: 0px;
+
+	background-color: #4CAF50;  Green 
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px; */
+	padding: 0;
+	
+	/* width: 20px; */
+	height: 20px;
+	/* border-style: solid; */
+	/* border-width: 10px; */
+	/* border-color: #202020; */
+	margin: 2px;
+	/* box-sizing: border-box; */
+}  
+/* button.run{
+}
+button.stop{
+	
+}
+button.reset{
+
+} */
+
+#output{
+	position: absolute;
+	width: 95%;
+	align-self: center;
+	bottom: 0;
+	/* margin: 10%; */
+}
+
+.FS{
+	background-color: darkgray;
+}
+.bar{
+	height: auto;
+	width: 100%;
+	background-color: #404040;
+}
+.FS.UI{
+	width: 200px;
+	height: 200px;
+}
+.FS.close{
+	position: sticky;
+	right: 0;
+	margin: 2px;
+	height: 20px;
+	width: 20px;
+}
