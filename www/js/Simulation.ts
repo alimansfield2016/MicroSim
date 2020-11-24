@@ -18,7 +18,7 @@ class Simulation{
 		this.display_devices = [];
 		//create html interface
 		this._html = document.createElement("div");
-		this._html.classList.add("simulation", "handle");
+		this._html.classList.add("simulation", "handle", "dragable");
 
 		let title = document.createElement("span");
 		title.innerText = "Simulation";

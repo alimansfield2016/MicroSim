@@ -33,7 +33,7 @@ namespace MicroSim{
 			this._height = y;
 
 			this._html = document.createElement("div");
-			this._html.classList.add("lcd", "handle");
+			this._html.classList.add("lcd", "handle", "dragableg");
 			// this._html.setAttribute("lcd-w", `${this._width}`);
 			// this._html.setAttribute("lcd-h", `${this._height}`);
 			this._html.setAttribute("style", `--lcd-width: ${this._width}; --lcd-height: ${this._height};`);
