@@ -1,4 +1,4 @@
-/// <reference path="../microsim.d.ts"/>
+/// <reference path="./microsim.d.ts"/>
 
 class Simulation{
 	interval : number = 0.1; //ms

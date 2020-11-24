@@ -1,4 +1,4 @@
-/// <reference path="../microsim.d.ts"/>
+/// <reference path="./microsim.d.ts"/>
 
 namespace MicroSim{
 	export class Rom{
