@@ -1,6 +1,6 @@
 #include "6502.hpp"
 
-using namespace MicroSim::WDC;
+using namespace MicroSim::MOS;
 
 
 Core6502::Core6502(unsigned long int _freq) : 
@@ -39,7 +39,7 @@ MicroSim::Byte Core6502::pop_byte()
 #ifdef WASM
 #include <emscripten/bind.h>
 EMSCRIPTEN_BINDINGS(Core6502){
-	emscripten::class_<	MicroSim::WDC::Core6502,
+	emscripten::class_<	MicroSim::MOS::Core6502,
 						emscripten::base<MicroSim::Core>
 					>("Core6502")
 		;

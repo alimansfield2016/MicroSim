@@ -3,7 +3,7 @@
 #include "include/Core.hpp"
 #include "include/MicroSim.hpp"
 
-namespace MicroSim::WDC
+namespace MicroSim::MOS
 {
 	class Core6502 : public MicroSim::Core
 	{

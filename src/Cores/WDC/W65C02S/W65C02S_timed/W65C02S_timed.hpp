@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../6502.hpp"
+#include "Cores/MOS/6502/6502.hpp"
 
 namespace MicroSim::WDC
 {
-	class CoreW65C02S_timed : public Core6502
+	class CoreW65C02S_timed : public MOS::Core6502
 	{
 	public:
 		CoreW65C02S_timed(unsigned long int);

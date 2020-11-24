@@ -368,7 +368,7 @@ void CoreW65C02S_simple::step()
 
 EMSCRIPTEN_BINDINGS(W65C02S_simple){
 	emscripten::class_<	MicroSim::WDC::CoreW65C02S_simple, 
-						emscripten::base<MicroSim::WDC::Core6502>
+						emscripten::base<MicroSim::MOS::Core6502>
 					>("CoreW65C02S_simple")
 		.constructor<unsigned long int>()
 		// .constructor<unsigned long int>(&std::make_unique<MicroSim::WDC::CoreW65C02S_simple>)

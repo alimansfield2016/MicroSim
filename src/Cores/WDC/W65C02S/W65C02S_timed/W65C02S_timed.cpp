@@ -333,7 +333,7 @@ void CoreW65C02S_timed::decode(std::uint8_t instr)
 #include <emscripten/bind.h>
 EMSCRIPTEN_BINDINGS(CoreW65C02S_timed){
 	emscripten::class_<	MicroSim::WDC::CoreW65C02S_timed,
-						emscripten::base<MicroSim::WDC::Core6502>
+						emscripten::base<MicroSim::MOS::Core6502>
 						>("CoreW65C02S_timed")
 		.constructor<unsigned long int>()
 		// .constructor<unsigned long int>(&std::make_unique<MicroSim::WDC::CoreW65C02S_timed>)
