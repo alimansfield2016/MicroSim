@@ -1,4 +1,5 @@
 declare namespace Module{
+	function profile_simulation(name:string, sim:Simulation):void;
 	class Deletable{
 		delete() : void;
 	}
@@ -82,10 +83,10 @@ declare namespace MicroSim{
 	}
 
 
-	class LCD implements DisplayDevice{
-		memory_devices() : Module.MemoryDevice[];
-		refresh() : void;
-	}
+	// class LCD implements DisplayDevice{
+	// 	memory_devices() : Module.MemoryDevice[];
+	// 	refresh() : void;
+	// }
 	class NES2C02 implements DisplayDevice{
 		memory_devices() : Module.MemoryDevice[];
 		refresh() : void;
