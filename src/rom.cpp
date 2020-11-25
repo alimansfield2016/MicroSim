@@ -1,8 +1,8 @@
 #include "include/rom.hpp"
 
 
-MicroSim::Rom::Rom(std::size_t n, Addr low) : 
-	MemoryDevice{low, low+n, nullptr},
+MicroSim::Rom::Rom(std::size_t n, Addr low, Addr high, Addr mask) : 
+	MemoryDevice{low, high, mask, nullptr},
 	m_data{new std::uint8_t[n]}
 {
 	MemoryDevice::m_data = m_data;
@@ -11,12 +11,11 @@ MicroSim::Rom::~Rom(){
 	delete[] m_data;
 }
 
-void MicroSim::Rom::fill(std::uint8_t *data, std::size_t size, Addr offset)
+void MicroSim::Rom::fill(std::uint8_t *data)
 {
-	offset -= low();
-	for(std::size_t i = 0; i < size; i++)
+	for(std::size_t i = 0; i < size(); i++)
 	{
-		m_data[i+offset] = data[i];
+		m_data[i] = data[i];
 	}
 }
 void MicroSim::Rom::fill(std::string filename){
@@ -25,6 +24,14 @@ void MicroSim::Rom::fill(std::string filename){
 		std::cout << "Failed to open ./test\n";
 		return;
 	}
+	for(std::size_t i = 0; i < size(); i++){
+		char b;
+		romFile.get(b);
+		m_data[i] = b;
+	}
+}
+void MicroSim::Rom::fill(std::ifstream &romFile)
+{
 	for(std::size_t i = 0; i < size(); i++){
 		char b;
 		romFile.get(b);
@@ -43,7 +50,7 @@ void MicroSim::Rom::write_qword(Addr, MicroSim::QWord) {};
 
 EMSCRIPTEN_BINDINGS(Rom){
 	emscripten::class_<MicroSim::Rom, emscripten::base<MicroSim::MemoryDevice>>("Rom")
-		.constructor<std::size_t, MicroSim::Addr>()
+		.constructor<std::size_t, MicroSim::Addr, MicroSim::Addr, MicroSim::Addr>()
 		.function("fill", emscripten::select_overload<void(std::string)>(&MicroSim::Rom::fill))
 		;
 

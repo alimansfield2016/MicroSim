@@ -15,14 +15,16 @@ namespace MicroSim
 	{
 	protected:
 		const Addr m_low, m_high;
+		const Addr m_mask;
 		const std::uint8_t m_priority;
 		std::uint8_t *m_data;
 	public:
-		constexpr MemoryDevice(Addr _low, Addr _high, std::uint8_t *_data, unsigned long int _freq = 0) :
+		constexpr MemoryDevice(Addr _low, Addr _high, Addr _bitmask, std::uint8_t *_data, std::uint8_t _priority = 4, unsigned long int _freq = 0) :
 			Device{_freq},
 			m_low{_low},
 			m_high{_high},
-			m_priority{0},
+			m_mask{_bitmask},
+			m_priority{_priority},
 			m_data{_data} {}
 		virtual ~MemoryDevice() override {}
 		constexpr Addr low() const { return m_low; }
@@ -62,7 +64,9 @@ namespace MicroSim
 						MemoryDevice{	
 							_low, 
 							_high, 
-							nullptr
+							static_cast<Addr>(-1),
+							nullptr,
+							0
 						}{}
 		virtual Byte read_byte(Addr) override;
 		virtual Word read_word(Addr) override;

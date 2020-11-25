@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iomanip>
 
-// #define _DEBUG
+#define _DEBUG
 #ifdef WASM
 #define DEBUG_STREAM std::cout
 #else
@@ -21,71 +21,71 @@
 
 MicroSim::Byte MicroSim::MemoryDevice::read_byte(Addr addr)
 {
-	return *reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]);
+	return *reinterpret_cast<std::uint8_t*>(&m_data[addr&m_mask]);
 }
 MicroSim::Word MicroSim::MemoryDevice::read_word(Addr addr)
 {
-	return *reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]);
+	return *reinterpret_cast<std::uint16_t*>(&m_data[addr&m_mask]);
 }
 MicroSim::DWord MicroSim::MemoryDevice::read_dword(Addr addr)
 {
-	return *reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]);
+	return *reinterpret_cast<std::uint32_t*>(&m_data[addr&m_mask]);
 }
 MicroSim::QWord MicroSim::MemoryDevice::read_qword(Addr addr)
 {
-	return *reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]);
+	return *reinterpret_cast<std::uint64_t*>(&m_data[addr&m_mask]);
 }
 
 void MicroSim::MemoryDevice::write_byte(Addr addr, MicroSim::Byte d)
 {
-	*reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint8_t*>(&m_data[addr&m_mask]) = d;
 }
 void MicroSim::MemoryDevice::write_word(Addr addr, MicroSim::Word d)
 {
-	*reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint16_t*>(&m_data[addr&m_mask]) = d;
 }
 void MicroSim::MemoryDevice::write_dword(Addr addr, MicroSim::DWord d)
 {
-	*reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint32_t*>(&m_data[addr&m_mask]) = d;
 }
 void MicroSim::MemoryDevice::write_qword(Addr addr, MicroSim::QWord d)
 {
-	*reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint64_t*>(&m_data[addr&m_mask]) = d;
 }
 
 
 MicroSim::Byte MicroSim::MemoryDevice::read_byte_const(Addr addr) const
 {
-		return *reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]);
+		return *reinterpret_cast<std::uint8_t*>(&m_data[addr&m_mask]);
 }
 MicroSim::Word MicroSim::MemoryDevice::read_word_const(Addr addr) const
 {
-		return *reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]);
+		return *reinterpret_cast<std::uint16_t*>(&m_data[addr&m_mask]);
 }
 MicroSim::DWord MicroSim::MemoryDevice::read_dword_const(Addr addr) const
 {
-		return *reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]);
+		return *reinterpret_cast<std::uint32_t*>(&m_data[addr&m_mask]);
 }
 MicroSim::QWord MicroSim::MemoryDevice::read_qword_const(Addr addr) const
 {
-		return *reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]);
+		return *reinterpret_cast<std::uint64_t*>(&m_data[addr&m_mask]);
 }
 
 void MicroSim::MemoryDevice::write_byte_override(Addr addr, MicroSim::Byte d)
 {
-	*reinterpret_cast<std::uint8_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint8_t*>(&m_data[addr&m_mask]) = d;
 }
 void MicroSim::MemoryDevice::write_word_override(Addr addr, MicroSim::Word d)
 {
-	*reinterpret_cast<std::uint16_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint16_t*>(&m_data[addr&m_mask]) = d;
 }
 void MicroSim::MemoryDevice::write_dword_override(Addr addr, MicroSim::DWord d)
 {
-	*reinterpret_cast<std::uint32_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint32_t*>(&m_data[addr&m_mask]) = d;
 }
 void MicroSim::MemoryDevice::write_qword_override(Addr addr, MicroSim::QWord d)
 {
-	*reinterpret_cast<std::uint64_t*>(&m_data[addr-m_low]) = d;
+	*reinterpret_cast<std::uint64_t*>(&m_data[addr&m_mask]) = d;
 }
 
 
@@ -135,7 +135,7 @@ const MicroSim::MemoryDevice &MicroSim::Memory::device_at(Addr _addr) const
 	for(auto &it : m_devices)
 	{
 		if(it->low() > _addr) continue;
-		if(it->high() <= _addr) continue;
+		if(it->high() < _addr) continue;
 		return *it;
 	}
 	return DefaultMemDev::s_defaultMemDev;
@@ -293,7 +293,7 @@ EMSCRIPTEN_BINDINGS(Memory){
 		;
 	emscripten::class_<MicroSim::MemoryDevice,
 						emscripten::base<MicroSim::Device>>("MemoryDevice")
-		.constructor<MicroSim::Addr, MicroSim::Addr, std::uint8_t*>()
+		.constructor<MicroSim::Addr, MicroSim::Addr, MicroSim::Addr, std::uint8_t*, std::uint8_t, unsigned long int>()
 		.function("low", &MicroSim::MemoryDevice::low)
 		.function("high", &MicroSim::MemoryDevice::high)
 		.function("priority", &MicroSim::MemoryDevice::priority)

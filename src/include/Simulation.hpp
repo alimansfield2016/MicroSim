@@ -23,11 +23,11 @@ namespace MicroSim
 		void reset();
 		unsigned long int frequency() const;
 		void update_frequency();
-		void set_core_frequency(unsigned long int);
-		std::string core_registers() const;
+		// void set_core_frequency(unsigned long int);
+		// std::string core_registers() const;
 
 		void add_device(MicroSim::Device*);
-		void add_memory_device(MicroSim::MemoryDevice*);
+		// void add_memory_device(MicroSim::MemoryDevice*);
 
 
 		MicroSim::Byte read_byte(MicroSim::Addr) const;

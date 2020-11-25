@@ -80,16 +80,16 @@ void MicroSim::Simulation::reset()
 	m_primary_core->reset();
 }
 
-void MicroSim::Simulation::set_core_frequency(unsigned long int _freq)
-{
-	m_primary_core->set_frequency(_freq);
-	update_frequency();
-}
+// void MicroSim::Simulation::set_core_frequency(unsigned long int _freq)
+// {
+// 	m_primary_core->set_frequency(_freq);
+// 	update_frequency();
+// }
 
-std::string MicroSim::Simulation::core_registers() const
-{
-	return m_primary_core->registers();
-}
+// std::string MicroSim::Simulation::core_registers() const
+// {
+// 	return m_primary_core->registers();
+// }
 
 unsigned long int MicroSim::Simulation::frequency() const
 {
@@ -105,16 +105,16 @@ void MicroSim::Simulation::add_device(MicroSim::Device *dev)
 		m_unclocked_devices.push_back(dev);
 	}
 }
-void MicroSim::Simulation::add_memory_device(MicroSim::MemoryDevice *dev)
-{
-	if(dev->frequency()){
-		m_clocked_devices.emplace_back(0, 0, dev);
-		update_frequency();
-	}else{
-		m_unclocked_devices.push_back(dev);
-	}
-	m_primary_core->register_memory_device(dev);
-}
+// void MicroSim::Simulation::add_memory_device(MicroSim::MemoryDevice *dev)
+// {
+// 	if(dev->frequency()){
+// 		m_clocked_devices.emplace_back(0, 0, dev);
+// 		update_frequency();
+// 	}else{
+// 		m_unclocked_devices.push_back(dev);
+// 	}
+// 	m_primary_core->register_memory_device(dev);
+// }
 
 // MicroSim::Core *MicroSim::Simulation::primary_core()
 // {
@@ -173,10 +173,10 @@ EMSCRIPTEN_BINDINGS(simulation){
 		.function("reset", &MicroSim::Simulation::reset)
 		.function("frequency", &MicroSim::Simulation::frequency)
 		.function("update_frequency", &MicroSim::Simulation::update_frequency)
-		.function("set_core_frequency", &MicroSim::Simulation::set_core_frequency)
-		.function("core_registers", &MicroSim::Simulation::core_registers)
+		// .function("set_core_frequency", &MicroSim::Simulation::set_core_frequency)
+		// .function("core_registers", &MicroSim::Simulation::core_registers)
 		.function("add_device", &MicroSim::Simulation::add_device, emscripten::allow_raw_pointers())
-		.function("add_memory_device", &MicroSim::Simulation::add_memory_device, emscripten::allow_raw_pointers())
+		// .function("add_memory_device", &MicroSim::Simulation::add_memory_device, emscripten::allow_raw_pointers())
 		.function("read_byte", &MicroSim::Simulation::read_byte)
 		.function("read_word", &MicroSim::Simulation::read_word)
 		.function("read_dword", &MicroSim::Simulation::read_dword)

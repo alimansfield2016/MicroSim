@@ -11,11 +11,12 @@ namespace MicroSim
 	{
 		std::uint8_t *m_data;
 	public:
-		Rom(std::size_t n, Addr low);
+		Rom(std::size_t n, Addr low, Addr high, Addr mask);
 		~Rom() override;
 
-		void fill(std::uint8_t *data, std::size_t size, Addr offset);
+		void fill(std::uint8_t *data);
 		void fill(std::string filename);
+		void fill(std::ifstream &romFile);
 
 		void write_byte(Addr, MicroSim::Byte) override;
 		void write_word(Addr, MicroSim::Word) override;

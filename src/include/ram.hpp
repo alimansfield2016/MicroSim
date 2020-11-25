@@ -8,7 +8,7 @@ namespace MicroSim
 	{
 		std::uint8_t *m_data;
 	public:
-		Ram(std::size_t n, Addr low);
+		Ram(std::size_t n, Addr low, Addr high, Addr mask);
 		~Ram() override;
 	};
 } // namespace MicroSim

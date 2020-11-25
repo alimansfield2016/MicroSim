@@ -1,7 +1,7 @@
 #include "include/Core.hpp"
 #include "include/Simulation.hpp"
-#include "Cores/WDC/6502/W65C02S_simple/W65C02S_simple.hpp"
-#include "Cores/WDC/6502/W65C02S_timed/W65C02S_timed.hpp"
+#include "Cores/WDC/W65C02S/W65C02S_simple/W65C02S_simple.hpp"
+#include "Cores/WDC/W65C02S/W65C02S_timed/W65C02S_timed.hpp"
 #include "Devices/Hitachi/HD44780U/HD44780U.hpp"
 
 #include <array>
@@ -49,7 +49,7 @@ void profile(std::string name, MicroSim::Simulation *sim)
 {
 	constexpr int num_profiles = 7;
 	constexpr int num_avg = 10;
-	double times[num_profiles];
+	double times[num_profiles] = {};
 
 	for(auto i = 0; i < num_profiles; i++){
 		auto steps = 1;
@@ -57,22 +57,20 @@ void profile(std::string name, MicroSim::Simulation *sim)
 			steps *= 10;
 		for(auto avg = 0; avg < num_avg; avg++){
 			sim->reset();
+
 			auto start = std::chrono::high_resolution_clock::now();
 			sim->run_cycles(steps);
-			
 			auto end = std::chrono::high_resolution_clock::now();
-			auto simple_time = std::chrono::duration<double, std::ratio<1, 1000>>(end - start).count();
-			times[i] *= avg;
-			times[i] += simple_time;
-			times[i] /= (avg+1);
+			auto time = std::chrono::duration<double, std::ratio<1, 1000>>(end - start).count();
+			times[i] += time;
 		}
+		times[i] /= num_avg;
 	}
+	auto steps = 1;
 	for(auto i = 0; i < num_profiles; i++)
 	{
-		auto steps = 1;
-		for(auto j = 0; j < i; j++)
-			steps *= 10;
 		std::cout << name << " (" << steps << "): " << times[i] << "ms\n";
+		steps *= 10;
 	}
 }
 
@@ -85,29 +83,32 @@ int main(int, char *[])
 	//load the core for simulation
 	simple_core = std::make_unique<MicroSim::WDC::CoreW65C02S_simple>(1000000);
 	timed_core = std::make_unique<MicroSim::WDC::CoreW65C02S_timed>(1000000);
-	//get the desired clock frequency
-	auto ram = std::make_unique<MicroSim::Ram>(0x4000, 0x0000);
-	auto rom = std::make_unique<MicroSim::Rom>(0x8000, 0x8000);
+	//create the memory devices
+	auto ram = std::make_unique<MicroSim::Ram>(0x4000, 0x0000, 0x3FFF, 0x3FFF);
+	auto rom = std::make_unique<MicroSim::Rom>(0x8000, 0x8000, 0xFFFF, 0x7FFF);
 	auto lcd = std::make_unique<MicroSim::Hitachi::MemoryDeviceHD44780U>(0x4000, 2);
 	std::ifstream romFile{"./Roms/65xx/test.rom"};
 	if(!romFile.is_open()){
 		std::cout << "Failed to open ./Roms/65xx/test.rom\n";
 		return 0;
 	}
-	std::array<char, 0x8000> rom_data;
-	for(std::size_t i = 0; i < 0x8000; i++)
-		romFile.get(rom_data[i]);
-
-	rom->fill(reinterpret_cast<std::uint8_t*>(rom_data.begin()), rom_data.size(), 0x8000);
+	rom->fill(romFile);
 	std::unique_ptr<MicroSim::Simulation>simple_sim = std::make_unique<MicroSim::Simulation>(simple_core.get());
 	std::unique_ptr<MicroSim::Simulation>timed_sim = std::make_unique<MicroSim::Simulation>(timed_core.get());
 	
-	simple_sim->add_memory_device(ram.get());//    core->memory().add_device(ram.get());
-	simple_sim->add_memory_device(rom.get());//    core->memory().add_device(rom.get());
-	simple_sim->add_memory_device(lcd.get());//    core->memory().add_device(lcd.get());
-	timed_sim->add_memory_device(ram.get());//    core->memory().add_device(ram.get());
-	timed_sim->add_memory_device(rom.get());//    core->memory().add_device(rom.get());
-	timed_sim->add_memory_device(lcd.get());//    core->memory().add_device(lcd.get());
+	simple_core->register_memory_device(ram.get());
+	simple_sim->add_device(ram.get());
+	simple_core->register_memory_device(rom.get());
+	simple_sim->add_device(rom.get());
+	simple_core->register_memory_device(lcd.get());
+	simple_sim->add_device(lcd.get());
+	
+	timed_core->register_memory_device(ram.get());
+	timed_sim->add_device(ram.get());
+	timed_core->register_memory_device(rom.get());
+	timed_sim->add_device(rom.get());
+	timed_core->register_memory_device(lcd.get());
+	timed_sim->add_device(lcd.get());
 
 	// rom.release();
 	// ram.release();
@@ -115,8 +116,8 @@ int main(int, char *[])
 	simple_sim->reset();
 	timed_sim->reset();
 
-	profile("simple", simple_sim.get());
-	profile("timed", timed_sim.get());
+	// profile("simple", simple_sim.get());
+	// profile("timed", timed_sim.get());
 
 	return 0;
 }
