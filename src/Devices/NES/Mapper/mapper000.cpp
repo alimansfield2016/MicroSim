@@ -1,6 +1,6 @@
 #include "mapper000.hpp"
 
-using namespace MicroSim::Nes;
+using namespace MicroSim::NES;
 
 Mapper000::Mapper000(bool NROM256, Mirroring _mirror) : 
 	m_prg{
@@ -22,7 +22,7 @@ MicroSim::MemoryDevice *Mapper000::chr()
 	return &m_chr;
 }
 
-MicroSim::Nes::Mapper::Mirroring MicroSim::Nes::Mapper000::mirror() const
+MicroSim::NES::Mapper::Mirroring MicroSim::NES::Mapper000::mirror() const
 {
 	return m_mirror;
 }

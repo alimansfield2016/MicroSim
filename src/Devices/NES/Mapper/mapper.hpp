@@ -2,7 +2,7 @@
 
 #include "include/Memory.hpp"
 
-namespace MicroSim::Nes
+namespace MicroSim::NES
 {
 	class Mapper{
 	public:
@@ -19,4 +19,4 @@ namespace MicroSim::Nes
 
 		static Mapper *mapper_from_ines(std::string);
 	};
-} // namespace MicroSim::Nes
+} // namespace MicroSim::NES

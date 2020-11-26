@@ -254,7 +254,7 @@ void MemoryDevice2C02::write_byte_override(Addr _addr, Byte b)
 	write_byte(_addr, b);
 }
 
-void MemoryDevice2C02::set_mapper(MicroSim::Nes::Mapper *mapper)
+void MemoryDevice2C02::set_mapper(MicroSim::NES::Mapper *mapper)
 {
 	m_mapper = mapper;
 	m_chr = m_mapper->chr();
@@ -268,7 +268,7 @@ MicroSim::Byte MemoryDevice2C02::ppu_read(Addr _addr)
 	_addr &= 0x3FFF;
 	if(_addr < 0x2000) return m_chr->read_byte(_addr);
 	if(_addr < 0x3F00){
-		if(m_mapper->mirror() == Nes::Mapper::Mirroring::H){
+		if(m_mapper->mirror() == NES::Mapper::Mirroring::H){
 			return m_nametables[(_addr>>11)&0x01][_addr&0x03FF];
 		}else{
 			return m_nametables[(_addr>>10)&0x01][_addr&0x03FF];
@@ -281,7 +281,7 @@ void MemoryDevice2C02::ppu_write(Addr _addr, Byte b)
 	_addr &= 0x3FFF;
 	if(_addr < 0x2000) m_chr->write_byte(_addr, b);
 	else if(_addr < 0x3F00){
-		if(m_mapper->mirror() == Nes::Mapper::Mirroring::H){
+		if(m_mapper->mirror() == NES::Mapper::Mirroring::H){
 			m_nametables[(_addr>>11)&0x01][_addr&0x03FF] = b;
 		}else{
 			m_nametables[(_addr>>10)&0x01][_addr&0x03FF] = b;

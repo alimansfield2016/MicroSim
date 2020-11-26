@@ -3,7 +3,7 @@
 #include "include/Memory.hpp"
 #include "mapper.hpp"
 
-namespace MicroSim::Nes
+namespace MicroSim::NES
 {
 	class Mapper000 : public Mapper{
 		//PrgRom
@@ -17,4 +17,4 @@ namespace MicroSim::Nes
 		MicroSim::MemoryDevice *chr() override;
 		Mirroring mirror() const override;
 	};
-} // namespace MicroSim::Nes
+} // namespace MicroSim::NES

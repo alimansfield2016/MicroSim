@@ -50,7 +50,7 @@ namespace MicroSim::Ricoh
 		Word 	m_bg_shifter_pattern_lo, m_bg_shifter_pattern_hi, 
 				m_bg_shifter_attrib_lo, m_bg_shifter_attrib_hi;
 
-		MicroSim::Nes::Mapper *m_mapper;
+		MicroSim::NES::Mapper *m_mapper;
 		MicroSim::MemoryDevice *m_chr;
 
 		bool m_addr_latch;
@@ -70,7 +70,7 @@ namespace MicroSim::Ricoh
 		void write_byte(Addr,Byte) override;
 		void write_byte_override(Addr,Byte) override;
 		//Class specific functions
-		void set_mapper(MicroSim::Nes::Mapper *);
+		void set_mapper(MicroSim::NES::Mapper *);
 		void set_core(MicroSim::MOS::Core6502 *core);
 		#ifdef WASM
 		emscripten::val display();

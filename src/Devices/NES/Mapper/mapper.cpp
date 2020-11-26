@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-MicroSim::Nes::Mapper *MicroSim::Nes::Mapper::mapper_from_ines(std::string filename)
+MicroSim::NES::Mapper *MicroSim::NES::Mapper::mapper_from_ines(std::string filename)
 {
 	std::ifstream rom{filename};
 	if(!rom.is_open()){
@@ -88,11 +88,11 @@ MicroSim::Nes::Mapper *MicroSim::Nes::Mapper::mapper_from_ines(std::string filen
 #ifdef WASM
 #include <emscripten/bind.h>
 EMSCRIPTEN_BINDINGS(mapper){
-	emscripten::class_<MicroSim::Nes::Mapper>("mapper")
-		.function("prg", &MicroSim::Nes::Mapper::prg, emscripten::allow_raw_pointers())
-		.function("ram", &MicroSim::Nes::Mapper::ram, emscripten::allow_raw_pointers())
-		.function("chr", &MicroSim::Nes::Mapper::chr, emscripten::allow_raw_pointers())
-		.class_function("mapper", &MicroSim::Nes::Mapper::mapper_from_ines, emscripten::allow_raw_pointers())
+	emscripten::class_<MicroSim::NES::Mapper>("mapper")
+		.function("prg", &MicroSim::NES::Mapper::prg, emscripten::allow_raw_pointers())
+		.function("ram", &MicroSim::NES::Mapper::ram, emscripten::allow_raw_pointers())
+		.function("chr", &MicroSim::NES::Mapper::chr, emscripten::allow_raw_pointers())
+		.class_function("mapper", &MicroSim::NES::Mapper::mapper_from_ines, emscripten::allow_raw_pointers())
 		;
 }
 #endif
