@@ -34,9 +34,9 @@ void CoreW65C02S_timed::addrm_absx_rmw()
 void CoreW65C02S_timed::addrm_absx2_rmw()
 {
 	high(_addr) = read_byte(PC++);
-	addrm = &CoreW65C02S_timed::addrm_abs_x3_rmw;
+	addrm = &CoreW65C02S_timed::addrm_absx3_rmw;
 }
-void CoreW65C02S_timed::addrm_abs_x3_rmw()
+void CoreW65C02S_timed::addrm_absx3_rmw()
 {
 	read_byte(high(_addr)<<8 | (low(_addr)+X));
 	_addr += X;

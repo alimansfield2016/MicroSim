@@ -16,7 +16,7 @@ using namespace MicroSim::Hitachi;
 
 
 MemoryDeviceHD44780U::MemoryDeviceHD44780U(Addr _addr, std::size_t size) :
-	MicroSim::MemoryDevice{_addr, _addr+size, nullptr, 250000}
+	MicroSim::MemoryDevice{size, _addr, _addr+size, 0x00, nullptr, 1, 250000}
 {
 	reset();
 }

@@ -2,7 +2,7 @@
 
 
 MicroSim::Rom::Rom(std::size_t n, Addr low, Addr high, Addr mask) : 
-	MemoryDevice{low, high, mask, nullptr},
+	MemoryDevice{n, low, high, mask, nullptr},
 	m_data{new std::uint8_t[n]}
 {
 	MemoryDevice::m_data = m_data;

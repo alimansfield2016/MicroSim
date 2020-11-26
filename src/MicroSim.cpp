@@ -4,6 +4,10 @@
 #include "Cores/WDC/W65C02S/W65C02S_timed/W65C02S_timed.hpp"
 #include "Devices/Hitachi/HD44780U/HD44780U.hpp"
 
+#include "Cores/Ricoh/2A03/2A03.hpp"
+#include "Devices/NES/Mapper/mapper.hpp"
+#include "Devices/Ricoh/2C02/2C02.hpp"
+
 #include <array>
 #include <fstream>
 #include <iostream>
@@ -93,8 +97,10 @@ int main(int, char *[])
 		return 0;
 	}
 	rom->fill(romFile);
-	std::unique_ptr<MicroSim::Simulation>simple_sim = std::make_unique<MicroSim::Simulation>(simple_core.get());
-	std::unique_ptr<MicroSim::Simulation>timed_sim = std::make_unique<MicroSim::Simulation>(timed_core.get());
+	std::unique_ptr<MicroSim::Simulation>simple_sim = std::make_unique<MicroSim::Simulation>();
+	simple_sim->add_device(simple_core.get());
+	std::unique_ptr<MicroSim::Simulation>timed_sim = std::make_unique<MicroSim::Simulation>();
+	timed_sim->add_device(timed_core.get());
 	
 	simple_core->register_memory_device(ram.get());
 	simple_sim->add_device(ram.get());
@@ -119,6 +125,24 @@ int main(int, char *[])
 	// profile("simple", simple_sim.get());
 	// profile("timed", timed_sim.get());
 
+	//nestest
+	auto nes_core = std::make_unique<MicroSim::Ricoh::Core2A03>(1000000);
+	auto nes_ppu = std::make_unique<MicroSim::Ricoh::MemoryDevice2C02>(1000000);
+	auto nes_sim = std::make_unique<MicroSim::Simulation>();
+	auto nes_ram = std::make_unique<MicroSim::Ram>(0x0800, 0x0000, 0x1FFF, 0x07FF);
+	nes_core->register_memory_device(nes_ppu.get());
+	nes_core->register_memory_device(nes_ram.get());
+	nes_sim->add_device(nes_core.get());
+	nes_sim->add_device(nes_ppu.get());
+	nes_sim->add_device(nes_ram.get());
+	auto nestest_cart = MicroSim::Nes::Mapper::mapper_from_ines("Roms/NES/nestest.nes");
+	nes_core->register_memory_device(nestest_cart->prg());
+	nes_ppu->set_mapper(nestest_cart);
+	nes_ppu->set_core(nes_core.get());
+	nes_sim->reset();
+	#ifndef WASM
+	nes_sim->run_cycles(1000000);
+	#endif
 	return 0;
 }
 

@@ -93,28 +93,14 @@ void Core2A03::op_br2()
 {
 	read_byte(PC);
 	high(PC)+=TMP;
+	state = State::FETCH;
 }
 
 void Core2A03::op_brk()
 {
 	read_byte(_addr);
-	op = &Core2A03::op_brk2;
-}
-void Core2A03::op_brk2()
-{
-	push_byte(high(PC));
-	op = &Core2A03::op_brk3;
-}
-void Core2A03::op_brk3()
-{
-	push_byte(low(PC));
-	op = &Core2A03::op_brk4;
-}
-void Core2A03::op_brk4()
-{
-	push_byte(P);
 	_addr = vec_brk;
-	op = &Core2A03::op_vecl;
+	op = &Core2A03::op_int3;
 }
 
 template<std::uint8_t F> 
@@ -271,7 +257,7 @@ void Core2A03::op_lda()
 	MicroSim::Byte &R = A;
 	R = read_byte(_addr);
 	Z = !R;
-	N = R&0x80;
+	N = !!(R&0x80);
 	state = State::FETCH;
 }
 void Core2A03::op_ldx()
@@ -279,7 +265,7 @@ void Core2A03::op_ldx()
 	MicroSim::Byte &R = X;
 	R = read_byte(_addr);
 	Z = !R;
-	N = R&0x80;
+	N = !!(R&0x80);
 	state = State::FETCH;
 }
 void Core2A03::op_ldy()
@@ -287,7 +273,7 @@ void Core2A03::op_ldy()
 	MicroSim::Byte &R = Y;
 	R = read_byte(_addr);
 	Z = !R;
-	N = R&0x80;
+	N = !!(R&0x80);
 	state = State::FETCH;
 }
 
@@ -297,7 +283,7 @@ void Core2A03::op_lsra()
 	C = R&0x01;
 	R >>=1;
 	Z = (R==0);
-	N = (R&0x80)>0;
+	N = !!(R&0x80);
 	state = State::FETCH;
 }
 void Core2A03::op_lsr()
@@ -312,7 +298,7 @@ void Core2A03::op_lsr2()
 	C = R&0x01;
 	R >>=1;
 	Z = (R==0);
-	N = (R&0x80)>0;
+	N = !!(R&0x80);
 	op = &Core2A03::op_rmw_w;
 }
 
@@ -376,7 +362,7 @@ void Core2A03::op_rola()
 		R |= 0x01;
 	C = c;
 	Z = (R==0);
-	N = (R&0x80);
+	N = !!(R&0x80);
 	state = State::FETCH;
 }
 void Core2A03::op_rol()
@@ -393,7 +379,7 @@ void Core2A03::op_rol_m()
 		R |= 0x01;
 	C = c;
 	Z = (R==0);
-	N = (R&0x80);
+	N = !!(R&0x80);
 
 	op = &Core2A03::op_rmw_w;
 }
@@ -407,7 +393,7 @@ void Core2A03::op_rora()
 		R |= 0x80;
 	C = c;
 	Z = (R==0);
-	N = (R&0x80);
+	N = !!(R&0x80);
 	state = State::FETCH;
 }
 void Core2A03::op_ror()
@@ -424,7 +410,7 @@ void Core2A03::op_ror_m()
 		R |= 0x80;
 	C = c;
 	Z = (R==0);
-	N = (R&0x80);
+	N = !!(R&0x80);
 
 	op = &Core2A03::op_rmw_w;
 }
@@ -481,7 +467,7 @@ void Core2A03::op_sbc()
 	MicroSim::Word res = A + TMP + C;
 	A = static_cast<MicroSim::Byte>(res);
 	C = (res&0x100)>0;
-	N = (A&0x80)>0;
+	N = !!(A&0x80);
 	Z = (A == 0);
 	V = ((A^t^TMP)&0x80)>0;
 	state = State::FETCH;
@@ -510,28 +496,28 @@ void Core2A03::op_sty()
 void Core2A03::op_tax()
 {
 	X = A;
-	N = X&0x80;
+	N = !!(X&0x80);
 	Z = !X;
 	state = State::FETCH;
 }
 void Core2A03::op_tay()
 {
 	Y = A;
-	N = Y&0x80;
+	N = !!(Y&0x80);
 	Z = !Y;
 	state = State::FETCH;
 }
 void Core2A03::op_tsx()
 {
 	X = SP;
-	N = X&0x80;
+	N = !!(X&0x80);
 	Z = !X;
 	state = State::FETCH;
 }
 void Core2A03::op_txa()
 {
 	A = X;
-	N = A&0x80;
+	N = !!(A&0x80);
 	Z = !A;
 	state = State::FETCH;
 }
@@ -543,7 +529,7 @@ void Core2A03::op_txs()
 void Core2A03::op_tya()
 {
 	A = Y;
-	N = A&0x80;
+	N = !!(A&0x80);
 	Z = !A;
 	state = State::FETCH;
 }
@@ -560,4 +546,30 @@ void Core2A03::op_vech()
 {
 	high(PC) = read_byte(_addr+1);
 	state = State::FETCH;
+}
+
+void Core2A03::op_int()
+{
+	read_byte(PC);
+	op = &Core2A03::op_int2;
+}
+void Core2A03::op_int2()
+{
+	read_byte(PC+1);
+	op = &Core2A03::op_int3;
+}
+void Core2A03::op_int3()
+{
+	push_byte(high(PC));
+	op = &Core2A03::op_int4;
+}
+void Core2A03::op_int4()
+{
+	push_byte(low(PC));
+	op = &Core2A03::op_int5;
+}
+void Core2A03::op_int5()
+{
+	push_byte(P);
+	op = &Core2A03::op_vecl;
 }

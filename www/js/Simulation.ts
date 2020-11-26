@@ -13,7 +13,8 @@ class Simulation{
 	_dragable : Dragable;
 	constructor(core : Module.Core){
 		this.core = core;
-		this.simulation = new Module.Simulation(this.core);
+		this.simulation = new Module.Simulation();
+		this.simulation.add_device(this.core)
 		this.devices = [];
 		this.display_devices = [];
 		//create html interface
@@ -48,8 +49,8 @@ class Simulation{
 		this.simulation.add_device(device);
 	}
 	add_memory_device(device: Module.MemoryDevice){
-		this.devices.push(device);
-		this.simulation.add_memory_device(device);
+		this.add_device(device);
+		this.core.register_memory_device(device);
 	}
 	add_display_device(device : MicroSim.DisplayDevice){
 		this.display_devices.push(device);

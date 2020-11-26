@@ -53,6 +53,7 @@ void CoreW65C02S_timed::op_asl()
 }
 void CoreW65C02S_timed::op_asl_m()
 {
+	write_byte(_addr, TMP);
 	C = TMP&0x80;
 	TMP <<=1;
 	Z = (TMP==0);
@@ -119,19 +120,22 @@ void CoreW65C02S_timed::op_bra()
 {
 	op = &CoreW65C02S_timed::op_br;
 }
+
 void CoreW65C02S_timed::op_br()
 {
 	read_byte(PC);
-	MicroSim::Word pcl = low(PC) + _addr;
-	low(PC) = pcl;
-	if(!(!!(pcl&0x100) ^ !!(_addr&0x80)))
+	std::int8_t offset = static_cast<std::int8_t>(_addr);
+	Word PC_new = PC + offset;
+	low(PC) += offset;
+	TMP = high(PC_new) - high(PC);
+	if(!TMP)
 		state = State::FETCH;
 	op = &CoreW65C02S_timed::op_br2;
 }
 void CoreW65C02S_timed::op_br2()
 {
 	read_byte(PC);
-	high(PC)++;
+	high(PC)+=TMP;
 }
 /*
 

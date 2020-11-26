@@ -29,7 +29,7 @@ namespace MicroSim::WDC
 		void addrm_absx2();
 		void addrm_absx_rmw();
 		void addrm_absx2_rmw();
-		void addrm_abs_x3_rmw();
+		void addrm_absx3_rmw();
 		void addrm_absy();
 		void addrm_absy2();
 		void addrm_acc();

@@ -14,13 +14,15 @@ namespace MicroSim
 	class MemoryDevice : public MicroSim::Device
 	{
 	protected:
+		const Addr m_size;
 		const Addr m_low, m_high;
 		const Addr m_mask;
 		const std::uint8_t m_priority;
 		std::uint8_t *m_data;
 	public:
-		constexpr MemoryDevice(Addr _low, Addr _high, Addr _bitmask, std::uint8_t *_data, std::uint8_t _priority = 4, unsigned long int _freq = 0) :
+		constexpr MemoryDevice(Addr _size, Addr _low, Addr _high, Addr _bitmask, std::uint8_t *_data, std::uint8_t _priority = 4, unsigned long int _freq = 0) :
 			Device{_freq},
+			m_size{_size},
 			m_low{_low},
 			m_high{_high},
 			m_mask{_bitmask},
@@ -29,7 +31,7 @@ namespace MicroSim
 		virtual ~MemoryDevice() override {}
 		constexpr Addr low() const { return m_low; }
 		constexpr Addr high() const { return m_high; }
-		constexpr Addr size() const { return m_high - m_low; }
+		constexpr Addr size() const { return m_size; }
 		constexpr Addr priority() const { return m_priority; }
 		
 		virtual Byte read_byte(Addr);
@@ -62,6 +64,7 @@ namespace MicroSim
 		DefaultMemDev(	Addr _low = static_cast<Addr>(0),
 						Addr _high = static_cast<Addr>(-1)) : 
 						MemoryDevice{	
+							static_cast<Addr>(-1),
 							_low, 
 							_high, 
 							static_cast<Addr>(-1),

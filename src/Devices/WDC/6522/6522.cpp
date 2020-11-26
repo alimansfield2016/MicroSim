@@ -2,8 +2,8 @@
 
 using namespace MicroSim::WDC;
 
-MemoryDevice6522::MemoryDevice6522(Addr _addr, std::size_t size) : 
-	MicroSim::MemoryDevice{_addr, _addr+size, nullptr}
+MemoryDevice6522::MemoryDevice6522(Addr _addr, std::size_t size, unsigned long int _freq = 0) : 
+	MicroSim::MemoryDevice{size, _addr, _addr+size, 0x0F, nullptr, 1, _freq}
 	{}
 
 MicroSim::Byte MemoryDevice6522::read_byte(Addr _addr)

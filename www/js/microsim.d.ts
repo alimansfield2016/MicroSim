@@ -4,17 +4,17 @@ declare namespace Module{
 		delete() : void;
 	}
 	class Simulation extends Deletable{
-		constructor(core:Core);
+		constructor();
 		run_cycles(cycles:number) : void;
 		run_seconds(s:number) : void;
 		reset() : void; //, &MicroSim::Simulation::reset)
 		frequency() : number; //, &MicroSim::Simulation::reset)
-		set_core_frequency(_freq:number) : void; //, &MicroSim::Simulation::reset)
+		// set_core_frequency(_freq:number) : void; //, &MicroSim::Simulation::reset)
 		update_frequency() : void; //, &MicroSim::Simulation::reset)
 		profile_simulation() : void; //, &MicroSim::Simulation::reset)
-		core_registers() : string; //, &MicroSim::Simulation::core_registers)
+		// core_registers() : string; //, &MicroSim::Simulation::core_registers)
 		add_device(dev:Device) : void; //, &MicroSim::Simulation::core_registers)
-		add_memory_device(dev:MemoryDevice) : void; //, &MicroSim::Simulation::core_registers)
+		// add_memory_device(dev:MemoryDevice) : void; //, &MicroSim::Simulation::core_registers)
 		read_byte(addr:number) : number; //, &MicroSim::Simulation::read_byte)
 		read_word(addr:number) : number; //, &MicroSim::Simulation::read_word)
 		read_dword(addr:number) : number; //, &MicroSim::Simulation::read_dword)
@@ -69,7 +69,19 @@ declare namespace Module{
 
 	}
 
+	class MemoryDevice2C02 extends MemoryDevice{
+		constructor(freq:number);
+		display() : Uint8Array;
+		set_refresh_fn(fn:number) : void;
+	}
+
+	let HEAPU8: Uint8Array;
+	let HEAPU16: Uint16Array;
+	let HEAPU32: Uint32Array;
+
+
 }
+declare function addFunction(fn:Function, types:string):number;
 declare namespace MicroSim{
 	interface MemoryDevice{
 		memory_devices() : Module.MemoryDevice[];

@@ -33,7 +33,7 @@ namespace MicroSim::WDC
 
 		Byte m_SR;
 	public:
-		MemoryDevice6522(Addr, std::size_t);
+		MemoryDevice6522(Addr, std::size_t, unsigned long int);
 		Byte read_byte(Addr) override;
 		void write_byte(Addr, Byte) override;
 	};

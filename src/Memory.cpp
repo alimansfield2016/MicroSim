@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iomanip>
 
-#define _DEBUG
+// #define _DEBUG
 #ifdef WASM
 #define DEBUG_STREAM std::cout
 #else
@@ -125,7 +125,7 @@ MicroSim::MemoryDevice &MicroSim::Memory::device_at(Addr _addr)
 	for(auto &it : m_devices)
 	{
 		if(it->low() > _addr) continue;
-		if(it->high() <= _addr) continue;
+		if(it->high() < _addr) continue;
 		return *it;
 	}
 	return DefaultMemDev::s_defaultMemDev;
@@ -293,7 +293,7 @@ EMSCRIPTEN_BINDINGS(Memory){
 		;
 	emscripten::class_<MicroSim::MemoryDevice,
 						emscripten::base<MicroSim::Device>>("MemoryDevice")
-		.constructor<MicroSim::Addr, MicroSim::Addr, MicroSim::Addr, std::uint8_t*, std::uint8_t, unsigned long int>()
+		.constructor<MicroSim::Addr, MicroSim::Addr, MicroSim::Addr, MicroSim::Addr, std::uint8_t*, std::uint8_t, unsigned long int>()
 		.function("low", &MicroSim::MemoryDevice::low)
 		.function("high", &MicroSim::MemoryDevice::high)
 		.function("priority", &MicroSim::MemoryDevice::priority)

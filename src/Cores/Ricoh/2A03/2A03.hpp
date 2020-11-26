@@ -73,9 +73,6 @@ namespace MicroSim::Ricoh
 		void op_br();
 		void op_br2();
 		void op_brk();
-		void op_brk2();
-		void op_brk3();
-		void op_brk4();
 
 		template<std::uint8_t F> 
 		void op_clf();
@@ -160,6 +157,11 @@ namespace MicroSim::Ricoh
 		void op_vecl();
 		void op_vech();
 		void op_reset();
+		void op_int();
+		void op_int2();
+		void op_int3();
+		void op_int4();
+		void op_int5();
 
 		//Illegal instructions:
 	};

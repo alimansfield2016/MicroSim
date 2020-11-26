@@ -2,6 +2,7 @@
 
 #include "include/Memory.hpp"
 #include "include/Core.hpp"
+#include "Cores/MOS/6502/6502.hpp"
 #include "Devices/NES/Mapper/mapper.hpp"
 
 #ifdef WASM
@@ -15,6 +16,8 @@ namespace MicroSim::Ricoh
 		Byte m_ppu_ctrl;
 		Byte m_ppu_mask;
 		Byte m_ppu_status;
+		
+		
 		Byte m_oam_addr;
 		Byte m_oam_data;
 		Byte m_ppu_scroll_x;
@@ -31,8 +34,8 @@ namespace MicroSim::Ricoh
 		union LoopyRegister
 		{
 			struct{
-				Word corsex: 5;
-				Word corsey: 5;
+				Word coarsex: 5;
+				Word coarsey: 5;
 				Word nametablex: 1;
 				Word nametabley: 1;
 				Word finey: 3;
@@ -42,11 +45,16 @@ namespace MicroSim::Ricoh
 		};
 		LoopyRegister m_vram_addr, m_tram_addr;
 		Word m_scanline, m_cycle;
+		Byte 	m_bg_next_tile_id, m_bg_next_tile_attrib, 
+				m_bg_next_tile_lsb, m_bg_next_tile_msb;
+		Word 	m_bg_shifter_pattern_lo, m_bg_shifter_pattern_hi, 
+				m_bg_shifter_attrib_lo, m_bg_shifter_attrib_hi;
 
 		MicroSim::Nes::Mapper *m_mapper;
 		MicroSim::MemoryDevice *m_chr;
 
 		bool m_addr_latch;
+		bool m_odd_frame;
 
 		void (*m_refresh_fn)();
 
@@ -63,22 +71,26 @@ namespace MicroSim::Ricoh
 		void write_byte_override(Addr,Byte) override;
 		//Class specific functions
 		void set_mapper(MicroSim::Nes::Mapper *);
+		void set_core(MicroSim::MOS::Core6502 *core);
 		#ifdef WASM
 		emscripten::val display();
 		#else
 		Byte *display();
 		#endif
 		void set_refresh_fn(uintptr_t);
-	private:
-		//Class specific functions
-		void emit_nmi(); //emit cpu NMI
 
 		Byte ppu_read(Addr);
 		void ppu_write(Addr, Byte);
+	private:
+		//Class specific functions
+		MicroSim::MOS::Core6502 *m_core;
+
 
 		void inc_scroll_x();
 		void inc_scroll_y();
 		void transfer_x();
 		void transfer_y();
+		void load_shifters();
+		void update_shifters();
 	};
 } // namespace MicroSim::Ricoh
