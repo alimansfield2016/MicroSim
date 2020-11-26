@@ -35,7 +35,7 @@ namespace MicroSim::MOS
 		~Core6502() override;
 		virtual void clock() override = 0;
 		virtual void reset() override = 0;
-		virtual void nmi() {m_nmi = true; std::cout << "6502 nmi\n";};
+		virtual void nmi() {m_nmi = true;};
 		virtual void irq() {};
 		// static std::shared_ptr<Core> createCore();
 		// constexpr static CoreDescription s_description{"65C02S", createCore};

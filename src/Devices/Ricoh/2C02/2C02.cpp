@@ -81,7 +81,7 @@ void MemoryDevice2C02::clock(){
 	else if(m_scanline == 241){} //DO NOTHING 
 	else if(m_scanline == 242 && m_cycle == 1){
 		// DEBUG(DEBUG_STREAM, "vblank\n");
-		std::cout << "vblank\n";
+		// std::cout << "vblank\n";
 		m_ppu_status |= 0x80;
 		//emit NMI
 		if(m_core && m_ppu_ctrl&0x80)
@@ -99,8 +99,8 @@ void MemoryDevice2C02::clock(){
 
 	Byte bg_pixel = 0, bg_palette = 0;
 
-	if(m_ppu_mask&0x08){ //render_background
-		if(m_ppu_mask&0x04 || (m_cycle >= 9)){
+	if(m_ppu_mask&0x08 && //render_background
+		(m_ppu_mask&0x04 || (m_cycle >= 9))){ //render left-most 8 pixels
 
 		Word bit_mux = 0x8000 >> m_finex;
 
@@ -116,7 +116,6 @@ void MemoryDevice2C02::clock(){
 		uint8_t bg_pal0 = (m_bg_shifter_attrib_lo & bit_mux) > 0;
 		uint8_t bg_pal1 = (m_bg_shifter_attrib_hi & bit_mux) > 0;
 		bg_palette = (bg_pal1 << 1) | bg_pal0;
-		}
 	}
 
 	Byte pixel = bg_pixel;
@@ -210,10 +209,10 @@ void MemoryDevice2C02::write_byte(Addr _addr, Byte b)
 			'\n');
 	switch (_addr&0x07)
 	{
-	case 0x00: m_ppu_ctrl = b; //PPUCTRL
-	case 0x01: m_ppu_mask = b; //PPUMASK
-	case 0x02: return;
-	case 0x03: m_oam_addr = b; //OAMADDR
+	case 0x00: m_ppu_ctrl = b; break; //PPUCTRL
+	case 0x01: m_ppu_mask = b; break; //PPUMASK
+	case 0x02: break;
+	case 0x03: m_oam_addr = b; break; //OAMADDR
 	case 0x04: m_oam[m_oam_addr++] = b;
 	case 0x05: { //PPUSCROLL
 		if(!m_addr_latch){
@@ -275,12 +274,7 @@ MicroSim::Byte MemoryDevice2C02::ppu_read(Addr _addr)
 			return m_nametables[(_addr>>10)&0x01][_addr&0x03FF];
 		}
 	}
-	if(_addr&0x03){
-		return m_palettes[_addr&0x1F];
-	}else{
-		return m_palettes[0];
-	}
-	return 0;
+	return m_palettes[_addr&0x1F];
 }
 void MemoryDevice2C02::ppu_write(Addr _addr, Byte b)
 {
@@ -293,11 +287,12 @@ void MemoryDevice2C02::ppu_write(Addr _addr, Byte b)
 			m_nametables[(_addr>>10)&0x01][_addr&0x03FF] = b;
 		}
 	}
-	else if(_addr&0x03){
+	else /* if(_addr&0x03) */{
 		m_palettes[_addr&0x1F] = b&0x3F;
-	}else{
-		m_palettes[0] = b&0x3F;
 	}
+	/* else{
+		m_palettes[0] = b&0x3F;
+	} */
 }
 
 
